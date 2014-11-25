@@ -41,7 +41,13 @@
       host: 'http://localhost:' + port
     });
     return lwebs.on('connect', function(s) {
-      return callback(lwebs, s, lwebc);
+      return callback(lwebs, s, lwebc, function(test) {
+        return lwebs.stop(function() {
+          return lwebc.stop(function() {
+            return test.done();
+          });
+        });
+      });
     });
   };
 
@@ -52,11 +58,11 @@
   };
 
   exports.send = function(test) {
-    return gimmeEnv(function(lwebs, s, c) {
+    return gimmeEnv(function(lwebs, s, c, done) {
       s.subscribe({
         test: true
       }, function(msg) {
-        return test.done();
+        return done(test);
       });
       return c.send({
         test: 1

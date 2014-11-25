@@ -11,3 +11,4 @@ _.extend exports, require('../websocket')
 
 webSocketClient = exports.webSocketClient = exports.webSocketChannel.extend4000
     initialize: -> @socketIo = io.connect @get('host') or "http://" + window?location?host
+    stop: (cb) -> @socketIo.disconnect(); cb()

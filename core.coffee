@@ -12,6 +12,7 @@ core = exports.core = subscriptionMan.fancy.extend4000
         
 channel = exports.channel = core.extend4000
     send: (msg) -> throw "I'm a default channel, cant send msg",msg
+    stop: (callback) -> true
 
 queryClient = exports.queryClient = core.extend4000
     query: (msg,callback) -> true
@@ -22,7 +23,8 @@ queryServer = exports.queryServer =core.extend4000
 queryBydirectional = exports.queryBydirectional = core.extend4000 queryClient, queryServer
 
 # has events like 'connect' and 'disconnect', provides client objects
-server = exports.server = core
+server = exports.server = core.extend4000
+    stop: -> true
 
 
         

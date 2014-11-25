@@ -25,10 +25,10 @@
       http: 'Instance'
     },
     initialize: function() {
-      var channelClass, http;
-      http = this.get('http');
+      var channelClass;
+      this.http = this.get('http');
       channelClass = exports.webSocketChannel.extend4000(this.get('channelClass') || {});
-      this.socketIo = io.listen(http, {
+      this.socketIo = io.listen(this.http, {
         log: false
       });
       return this.socketIo.on('connection', (function(_this) {
@@ -38,6 +38,10 @@
           }));
         };
       })(this));
+    },
+    stop: function(callback) {
+      this.http.close();
+      return callback();
     }
   });
 

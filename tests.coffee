@@ -30,18 +30,17 @@ gimmeEnv = (callback) ->
     lwebs = new Server.webSocketServer http: http
     lwebc = new Client.webSocketClient host: 'http://localhost:' + port
     
-    lwebs.on 'connect', (s) -> callback lwebs, s, lwebc
+    lwebs.on 'connect', (s) -> callback lwebs, s, lwebc, (test) ->
+        lwebs.stop -> lwebc.stop -> test.done()
 
 exports.init = (test) ->
     gimmeEnv ->
         test.done()
         
 exports.send = (test) ->
-    gimmeEnv (lwebs, s, c) ->
+    gimmeEnv (lwebs, s, c,done) ->
         s.subscribe { test: true}, (msg) ->
-            test.done()
-            
-            
+            done test            
         c.send { test: 1 }
 
 
