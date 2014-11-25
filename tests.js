@@ -83,4 +83,34 @@
     });
   };
 
+  exports.ClientQuery = function(test) {
+    var query;
+    query = require('protocol/query');
+    return gimmeEnv(function(lwebs, s, c, done) {
+      var total;
+      s.addProtocol(query.server);
+      c.addProtocol(query.client);
+      s.query.subscribe({
+        test: Number
+      }, function(msg, reply) {
+        reply.write({
+          reply: msg.test + 3
+        });
+        return reply.end({
+          reply: msg.test + 2
+        });
+      });
+      total = 0;
+      return c.query.send({
+        test: 7
+      }, function(msg, end) {
+        total += msg.reply;
+        if (end) {
+          test.equal(total, 19);
+          return test.done();
+        }
+      });
+    });
+  };
+
 }).call(this);

@@ -43,10 +43,28 @@ exports.ClientSend = (test) ->
             done test            
         c.send { test: 1 }
 
-
-
 exports.ServerSend = (test) ->
     gimmeEnv (lwebs, s, c,done) ->
         c.subscribe { test: true}, (msg) ->
             done test            
         s.send { test: 1 }
+
+exports.ClientQuery = (test) ->
+    query = require('protocol/query')
+    
+    gimmeEnv (lwebs, s, c,done) ->
+        s.addProtocol query.server
+        c.addProtocol query.client
+
+        s.query.subscribe { test: Number }, (msg, reply) ->
+            reply.write reply: msg.test + 3
+            reply.end reply: msg.test + 2
+
+        total = 0
+
+        c.query.send { test: 7 }, (msg, end) ->
+            total += msg.reply
+            if end
+                test.equal total, 19
+                test.done()
+

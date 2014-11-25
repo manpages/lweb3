@@ -10,7 +10,5 @@ io = require 'socket.io-browserify'
 _.extend exports, require('../websocket')
 
 webSocketClient = exports.webSocketClient = exports.webSocketChannel.extend4000
-    initialize: ->
-        @set socketIo: @socketIo = io.connect @get('host') or "http://" + window?location?host
-        
+    initialize: -> @set socketIo: @socketIo = io.connect @get('host') or "http://" + window?location?host
     stop: (cb) -> @socketIo.disconnect(); cb()
