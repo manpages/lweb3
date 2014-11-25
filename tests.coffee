@@ -37,7 +37,7 @@ exports.init = (test) ->
     gimmeEnv ->
         test.done()
         
-exports.send = (test) ->
+exports.ClientSend = (test) ->
     gimmeEnv (lwebs, s, c,done) ->
         s.subscribe { test: true}, (msg) ->
             done test            
@@ -45,3 +45,8 @@ exports.send = (test) ->
 
 
 
+exports.ServerSend = (test) ->
+    gimmeEnv (lwebs, s, c,done) ->
+        c.subscribe { test: true}, (msg) ->
+            done test            
+        s.send { test: 1 }

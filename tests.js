@@ -57,7 +57,7 @@
     });
   };
 
-  exports.send = function(test) {
+  exports.ClientSend = function(test) {
     return gimmeEnv(function(lwebs, s, c, done) {
       s.subscribe({
         test: true
@@ -65,6 +65,19 @@
         return done(test);
       });
       return c.send({
+        test: 1
+      });
+    });
+  };
+
+  exports.ServerSend = function(test) {
+    return gimmeEnv(function(lwebs, s, c, done) {
+      c.subscribe({
+        test: true
+      }, function(msg) {
+        return done(test);
+      });
+      return s.send({
         test: 1
       });
     });
