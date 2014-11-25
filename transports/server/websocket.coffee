@@ -9,20 +9,19 @@ io = require 'socket.io'
 
 core = require '../../core'
 
-_.extend exports, websocket = require './websocket'
+_.extend exports, require('../websocket')
 
 
-webSocketServer = core.server.extend4000 validator.ValidatedModel,
+webSocketServer = exports.webSocketServer = core.server.extend4000 validator.ValidatedModel,
     validator:
         http: 'Instance'
-        channelClass: 'Function'
         
     initialize: ->
         http = @get 'http'
-        channelClass = webSocketChannel.extend4000 @get('channelClass')
+        channelClass = exports.webSocketChannel.extend4000 @get('channelClass') or {}
         @socketIo = io.listen http, log: false
 
-        @socketIo.on 'conection', (socketIoClient) =>
+        @socketIo.on 'connection', (socketIoClient) =>
             @trigger 'connect', new channelClass socketIo: socketIoClient
 
             

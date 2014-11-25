@@ -1,13 +1,24 @@
+_ = require 'underscore'
+Backbone = require 'backbone4000'
+helpers = require 'helpers'
 
-webSocketChannel = Channel.extend4000, validator.ValidatedModel
-    validator:
-        socketIo: 'Instance'
-        
+subscriptionMan = require('subscriptionman2')
+validator = require('validator2-extras'); v = validator.v
+
+io = require 'socket.io'
+
+core = require '../core'
+
+webSocketChannel = exports.webSocketChannel = core.channel.extend4000
     initialize: ->
-        @socketIo = @get 'socketIo'
+        @when 'socketIo', (@socketIo) =>
+            @socketIo.on 'msg', (msg) =>
+                console.log "<",msg
+                @event msg
         
-    send: (msg) -> 
-        @socketIo.emit 'msg',msg
+    send: (msg) ->
+        console.log ">",msg
+        @socketIo.emit 'msg', msg
         
-    receive: (callback) ->
+    receive: (pattern, callback) ->
         @socketIo.on 'msg', callback

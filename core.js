@@ -14,19 +14,21 @@
 
   v = validator.v;
 
-  core = exports.core = Backbone.Model.extend4000({
+  core = exports.core = subscriptionMan.fancy.extend4000({
     initialize: function() {
-      var parent;
-      if (parent = this.get('parent')) {
-        this.parent = parent;
-      }
-      return this.verbose = this.get('verbose') || (typeof this.parent === "function" ? this.parent(verbose || false) : void 0);
+      this.verbose = this.get('verbose') || false;
+      return this.when('parent', (function(_this) {
+        return function(parent) {
+          _this.parent = parent;
+          return _this.verbose = _this.get('verbose') || (typeof _this.parent === "function" ? _this.parent(verbose || false) : void 0);
+        };
+      })(this));
     }
   });
 
   channel = exports.channel = core.extend4000({
     send: function(msg) {
-      return true;
+      return console.log('send', msg);
     },
     receive: function(callback) {
       return true;
@@ -47,6 +49,6 @@
 
   queryBydirectional = exports.queryBydirectional = core.extend4000(queryClient, queryServer);
 
-  server = exports.server = core.extend4000(subscriptionMan.basic, {});
+  server = exports.server = core;
 
 }).call(this);
