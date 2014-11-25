@@ -113,6 +113,8 @@
     });
   };
 
+  exports.QueryProtocolCancel = function(test) {};
+
   exports.ChannelProtocol = function(test) {
     var channel, query;
     query = require('protocols/query');

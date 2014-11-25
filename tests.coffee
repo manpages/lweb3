@@ -69,6 +69,9 @@ exports.QueryProtocol = (test) ->
                 test.done()
 
 
+exports.QueryProtocolCancel = (test) ->
+    
+
 exports.ChannelProtocol = (test) ->
     query = require('protocols/query')
     channel = require('protocols/channel')

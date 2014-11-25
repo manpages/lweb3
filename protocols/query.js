@@ -16,16 +16,35 @@
 
   core = require('../core');
 
-  client = exports.client = core.protocol.extend4000({
+  client = exports.client = core.protocol.extend4000(validator.ValidatedModel, {
+    validator: {
+      timeout: v().Default(3000).Number()
+    },
+    initialize: function() {
+      return this.when('parent', (function(_this) {
+        return function(parent) {
+          return parent.subscribe({
+            type: 'reply',
+            id: String
+          }, function(msg) {
+            return _this.event(msg);
+          });
+        };
+      })(this));
+    },
     name: 'queryClient',
-    send: function(msg, callback) {
+    send: function(msg, timeout, callback) {
       var id, unsubscribe;
+      if (timeout.constructor === Function) {
+        callback = timeout;
+        timeout = this.get('timeout');
+      }
       this.parent.send({
         type: 'query',
         id: id = helpers.uuid(10),
         payload: msg
       });
-      return unsubscribe = this.parent.subscribe({
+      unsubscribe = this.subscribe({
         type: 'reply',
         id: id
       }, function(msg) {
@@ -34,6 +53,7 @@
         }
         return callback(msg.payload, msg.end);
       });
+      return setTimeout(unsubscribe, timeout);
     }
   });
 
@@ -51,7 +71,6 @@
     initialize: function() {
       return this.when('parent', (function(_this) {
         return function(parent) {
-          console.log("initializing queryserver");
           return parent.subscribe({
             type: 'query',
             payload: true
