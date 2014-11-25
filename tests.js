@@ -83,7 +83,7 @@
     });
   };
 
-  exports.ClientQuery = function(test) {
+  exports.QueryProtocol = function(test) {
     var query;
     query = require('protocol/query');
     return gimmeEnv(function(lwebs, s, c, done) {
@@ -109,6 +109,45 @@
           test.equal(total, 19);
           return test.done();
         }
+      });
+    });
+  };
+
+  exports.ChannelProtocol = function(test) {
+    var channel, query;
+    query = require('protocol/query');
+    channel = require('protocol/channel');
+    return gimmeEnv(function(lwebs, s, c, done) {
+      s.addProtocol(query.server);
+      c.addProtocol(query.client);
+      s.addProtocol(channel.server);
+      c.addProtocol(channel.client);
+      return c.subscribe('testchannel', function(err, channel) {
+        if (err) {
+          return test.fail();
+        }
+        test.equal(channel, c.channel.testchannel);
+        channel.subscribe({
+          test: 1
+        }, function(msg) {
+          test.equals(msg.bla, 3);
+          return channel.unsubscribe(function(err, data) {
+            if (err) {
+              return test.fail();
+            }
+            s.channel.testchannel.broadcast({
+              test: 2,
+              bla: 4
+            });
+            return helpers.wait(100, function() {
+              return done(test);
+            });
+          });
+        });
+        return s.channel.testchannel.broadcast({
+          test: 1,
+          bla: 3
+        });
       });
     });
   };

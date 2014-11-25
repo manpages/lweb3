@@ -49,7 +49,7 @@ exports.ServerSend = (test) ->
             done test            
         s.send { test: 1 }
 
-exports.ClientQuery = (test) ->
+exports.QueryProtocol = (test) ->
     query = require('protocol/query')
     
     gimmeEnv (lwebs, s, c,done) ->
@@ -68,3 +68,33 @@ exports.ClientQuery = (test) ->
                 test.equal total, 19
                 test.done()
 
+
+exports.ChannelProtocol = (test) ->
+    query = require('protocol/query')
+    channel = require('protocol/channel')
+
+    gimmeEnv (lwebs, s, c,done) ->
+        s.addProtocol query.server
+        c.addProtocol query.client
+        
+        s.addProtocol channel.server
+        c.addProtocol channel.client
+
+
+        c.subscribe 'testchannel', (err,channel) ->
+            if err then return test.fail()
+
+            test.equal channel, c.channel.testchannel
+
+            channel.subscribe { test: 1 }, (msg) ->
+                test.equals msg.bla, 3
+
+                channel.unsubscribe (err,data) ->
+                    if err then return test.fail()
+                    s.channel.testchannel.broadcast { test: 2, bla: 4 }
+                    helpers.wait 100, ->
+                        done test
+                    
+            s.channel.testchannel.broadcast { test: 1, bla: 3 }
+            
+            
