@@ -12,14 +12,14 @@ core = exports.core = subscriptionMan.fancy.extend4000
     
 channel = exports.channel = core.extend4000
     send: (msg) -> throw "I'm a default channel, cant send msg #{msg}"
-    stop: (callback) -> true
+    stop: (callback) -> throw "I'm a default channel, cant stop me"
 
-    hasProtocol: (protocol) -> Boolean @[protocol.name] or @[protocol::name]    
+    hasProtocol: (protocol) -> Boolean @[protocol.name] or @[protocol::?name]
     addProtocol: (protocol) ->
+        if not protocol.name then throw "what is this?"
         if @hasProtocol protocol then throw "this protocol (#{protocol.name}) is already active on channel"
         @[protocol.name] = protocol
         protocol.set parent: @
-
         _.map protocol.requires, (protocol) -> if not @hasProtocol protocol then @addProtocol new protocol()
         
 protocol = exports.protocol = core.extend4000 {}
@@ -27,6 +27,3 @@ protocol = exports.protocol = core.extend4000 {}
 # has events like 'connect' and 'disconnect', provides client objects
 server = exports.server = core.extend4000
     stop: -> true
-
-
-        

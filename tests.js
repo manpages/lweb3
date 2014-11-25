@@ -85,12 +85,12 @@
 
   exports.QueryProtocol = function(test) {
     var query;
-    query = require('protocol/query');
+    query = require('./protocols/query');
     return gimmeEnv(function(lwebs, s, c, done) {
       var total;
-      s.addProtocol(query.server);
-      c.addProtocol(query.client);
-      s.query.subscribe({
+      s.addProtocol(new query.server());
+      c.addProtocol(new query.client());
+      s.queryServer.subscribe({
         test: Number
       }, function(msg, reply) {
         reply.write({
@@ -101,7 +101,7 @@
         });
       });
       total = 0;
-      return c.query.send({
+      return c.queryClient.send({
         test: 7
       }, function(msg, end) {
         total += msg.reply;
@@ -115,8 +115,8 @@
 
   exports.ChannelProtocol = function(test) {
     var channel, query;
-    query = require('protocol/query');
-    channel = require('protocol/channel');
+    query = require('protocols/query');
+    channel = require('protocols/channel');
     return gimmeEnv(function(lwebs, s, c, done) {
       s.addProtocol(new channel.server());
       c.addProtocol(new channel.client());
@@ -149,5 +149,7 @@
       });
     });
   };
+
+  exports.QueryProtocol(true);
 
 }).call(this);

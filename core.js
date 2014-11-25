@@ -31,12 +31,15 @@
       throw "I'm a default channel, cant send msg " + msg;
     },
     stop: function(callback) {
-      return true;
+      throw "I'm a default channel, cant stop me";
     },
     hasProtocol: function(protocol) {
-      return Boolean(this[protocol.name] || this[protocol.prototype.name]);
+      return Boolean(this[protocol.name] || this[typeof protocol.prototype === "function" ? protocol.prototype(name) : void 0]);
     },
     addProtocol: function(protocol) {
+      if (!protocol.name) {
+        throw "what is this?";
+      }
       if (this.hasProtocol(protocol)) {
         throw "this protocol (" + protocol.name + ") is already active on channel";
       }
