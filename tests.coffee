@@ -93,28 +93,28 @@ exports.QueryProtocolCancel = (test) ->
         
 
 exports.ChannelProtocol = (test) ->
-    query = require('protocols/query')
-    channel = require('protocols/channel')
+    query = require('./protocols/query')
+    channel = require('./protocols/channel')
 
     gimmeEnv (lwebs, s, c,done) ->        
         s.addProtocol new channel.server()
         c.addProtocol new channel.client()
 
-        c.subscribe 'testchannel', (err,channel) ->
+        c.channelClient.join 'testchannel', (err,channel) ->
             if err then return test.fail()
 
-            test.equal channel, c.channel.testchannel
+            test.equal channel, c.channelClient.testchannel
 
             channel.subscribe { test: 1 }, (msg) ->
                 test.equals msg.bla, 3
 
                 channel.unsubscribe (err,data) ->
                     if err then return test.fail()
-                    s.channel.testchannel.broadcast { test: 2, bla: 4 }
+                    s.channelServer.testchannel.broadcast { test: 2, bla: 4 }
                     helpers.wait 100, ->
                         done test
                     
             s.channel.testchannel.broadcast { test: 1, bla: 3 }
 
 
-#exports.QueryProtocolCancel true
+exports.ChannelProtocol true

@@ -37,6 +37,7 @@
       return Boolean(this[protocol.name] || this[typeof protocol.prototype === "function" ? protocol.prototype(name) : void 0]);
     },
     addProtocol: function(protocol) {
+      console.log(protocol);
       if (!protocol.name) {
         throw "what is this?";
       }
@@ -55,7 +56,9 @@
     }
   });
 
-  protocol = exports.protocol = core.extend4000({});
+  protocol = exports.protocol = core.extend4000({
+    requires: []
+  });
 
   server = exports.server = core.extend4000({
     stop: function() {

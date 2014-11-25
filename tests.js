@@ -153,16 +153,16 @@
 
   exports.ChannelProtocol = function(test) {
     var channel, query;
-    query = require('protocols/query');
-    channel = require('protocols/channel');
+    query = require('./protocols/query');
+    channel = require('./protocols/channel');
     return gimmeEnv(function(lwebs, s, c, done) {
       s.addProtocol(new channel.server());
       c.addProtocol(new channel.client());
-      return c.subscribe('testchannel', function(err, channel) {
+      return c.channelClient.join('testchannel', function(err, channel) {
         if (err) {
           return test.fail();
         }
-        test.equal(channel, c.channel.testchannel);
+        test.equal(channel, c.channelClient.testchannel);
         channel.subscribe({
           test: 1
         }, function(msg) {
@@ -171,7 +171,7 @@
             if (err) {
               return test.fail();
             }
-            s.channel.testchannel.broadcast({
+            s.channelServer.testchannel.broadcast({
               test: 2,
               bla: 4
             });
@@ -187,5 +187,7 @@
       });
     });
   };
+
+  exports.ChannelProtocol(true);
 
 }).call(this);
