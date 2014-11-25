@@ -118,10 +118,8 @@
     query = require('protocol/query');
     channel = require('protocol/channel');
     return gimmeEnv(function(lwebs, s, c, done) {
-      s.addProtocol(query.server);
-      c.addProtocol(query.client);
-      s.addProtocol(channel.server);
-      c.addProtocol(channel.client);
+      s.addProtocol(new channel.server());
+      c.addProtocol(new channel.client());
       return c.subscribe('testchannel', function(err, channel) {
         if (err) {
           return test.fail();

@@ -73,13 +73,9 @@ exports.ChannelProtocol = (test) ->
     query = require('protocol/query')
     channel = require('protocol/channel')
 
-    gimmeEnv (lwebs, s, c,done) ->
-        s.addProtocol query.server
-        c.addProtocol query.client
-        
-        s.addProtocol channel.server
-        c.addProtocol channel.client
-
+    gimmeEnv (lwebs, s, c,done) ->        
+        s.addProtocol new channel.server()
+        c.addProtocol new channel.client()
 
         c.subscribe 'testchannel', (err,channel) ->
             if err then return test.fail()
