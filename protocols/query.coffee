@@ -47,11 +47,13 @@ reply = core.core.extend4000
         
     end: (msg) ->
         if not @ended then @ended = true else throw "this reply has ended"
+        @unsubscribe()
         @parent.send msg, @id, true
         
     cancel: ->
         @ended = true
         @trigger 'cancel'
+        @unsubscribe()
 
 server = exports.server = core.protocol.extend4000
     name: 'queryServer'

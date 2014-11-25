@@ -97,11 +97,13 @@
       } else {
         throw "this reply has ended";
       }
+      this.unsubscribe();
       return this.parent.send(msg, this.id, true);
     },
     cancel: function() {
       this.ended = true;
-      return this.trigger('cancel');
+      this.trigger('cancel');
+      return this.unsubscribe();
     }
   });
 
