@@ -92,5 +92,3 @@ exports.ChannelProtocol = (test) ->
                         done test
                     
             s.channel.testchannel.broadcast { test: 1, bla: 3 }
-
-exports.QueryProtocol(true)

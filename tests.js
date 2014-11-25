@@ -150,6 +150,4 @@
     });
   };
 
-  exports.QueryProtocol(true);
-
 }).call(this);

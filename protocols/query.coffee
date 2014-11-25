@@ -15,14 +15,24 @@ client = exports.client = core.protocol.extend4000
             if msg.end then unsubscribe()
             callback msg.payload, msg.end
 
+reply = core.protocol.extend4000
+    write: (msg) -> @parent.send msg, @id, false
+    end: (msg) -> @parent.send msg, @id, true
+
 server = exports.server = core.protocol.extend4000
     name: 'queryServer'
 
     initialize: ->
         @when 'parent', (parent) =>
             console.log "initializing queryserver"
-            parent.subscribe { type: 'query', payload: true }, (msg) => @event msg.payload
+            parent.subscribe { type: 'query', payload: true }, (msg) => @event msg.payload, msg.id
+
+    send: (payload,id,end=false) ->
+        msg = { type: 'reply', payload: payload, id: id }
+        if end then msg.end = true
+        @parent.send msg
 
     subscribe: (pattern=true ,callback) ->
-        #subscriptionMan.fancy::subscribe.call @, (msg) =>
-            
+        subscriptionMan.fancy::subscribe.call @, pattern, (payload, id) =>
+            callback payload, new reply id: id, parent: @
+
