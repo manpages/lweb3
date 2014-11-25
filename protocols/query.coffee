@@ -27,7 +27,7 @@ client = exports.client = core.protocol.extend4000 validator.ValidatedModel,
             if msg.end then unsubscribe()
             callback msg.payload, msg.end
             
-        setTimeout unsubscribe, timeout
+        #setTimeout unsubscribe, timeout
 
 reply = core.protocol.extend4000
     write: (msg) -> @parent.send msg, @id, false

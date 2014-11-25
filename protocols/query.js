@@ -44,7 +44,7 @@
         id: id = helpers.uuid(10),
         payload: msg
       });
-      unsubscribe = this.subscribe({
+      return unsubscribe = this.subscribe({
         type: 'reply',
         id: id
       }, function(msg) {
@@ -53,7 +53,6 @@
         }
         return callback(msg.payload, msg.end);
       });
-      return setTimeout(unsubscribe, timeout);
     }
   });
 
