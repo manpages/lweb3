@@ -96,8 +96,10 @@
         reply.write({
           reply: msg.test + 3
         });
-        return reply.end({
-          reply: msg.test + 2
+        return helpers.wait(100, function() {
+          return reply.end({
+            reply: msg.test + 2
+          });
         });
       });
       total = 0;
@@ -113,7 +115,41 @@
     });
   };
 
-  exports.QueryProtocolCancel = function(test) {};
+  exports.QueryProtocolCancel = function(test) {
+    var query;
+    query = require('./protocols/query');
+    return gimmeEnv(function(lwebs, s, c, done) {
+      var total;
+      s.addProtocol(new query.server());
+      c.addProtocol(new query.client());
+      s.queryServer.subscribe({
+        test: Number
+      }, function(msg, reply) {
+        reply.write({
+          reply: msg.test + 3
+        });
+        return helpers.wait(100, function() {
+          return test.equal(reply.ended, true);
+        });
+      });
+      total = 0;
+      return query = c.queryClient.send({
+        test: 7
+      }, function(msg, end) {
+        query.end();
+        total += msg.reply;
+        c.subscribe({
+          type: 'reply',
+          end: true
+        }, function(msg) {
+          return test.ok(false, "didnt cancel");
+        });
+        return helpers.wait(200, function() {
+          return test.done();
+        });
+      });
+    });
+  };
 
   exports.ChannelProtocol = function(test) {
     var channel, query;

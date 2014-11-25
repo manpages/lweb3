@@ -7,6 +7,11 @@ validator = require('validator2-extras'); v = validator.v
 
 core = require '../core'
 
+query = core.core.extend4000
+    end: () ->
+        @get('unsubscribe')()
+        @parent.end @id
+
 client = exports.client = core.protocol.extend4000 validator.ValidatedModel,
     validator:
         timeout: v().Default(3000).Number()
@@ -16,6 +21,9 @@ client = exports.client = core.protocol.extend4000 validator.ValidatedModel,
             parent.subscribe { type: 'reply', id: String }, (msg) => @event msg
             
     name: 'queryClient'
+
+    end: (id) ->
+        @parent.send { type: 'queryCancel', id: id }
     
     send: (msg, timeout, callback) ->
         if timeout.constructor is Function
@@ -28,10 +36,22 @@ client = exports.client = core.protocol.extend4000 validator.ValidatedModel,
             callback msg.payload, msg.end
             
         #setTimeout unsubscribe, timeout
+        return new query parent: @, id: id, unsubscribe: unsubscribe
 
-reply = core.protocol.extend4000
-    write: (msg) -> @parent.send msg, @id, false
-    end: (msg) -> @parent.send msg, @id, true
+reply = core.core.extend4000
+    initialize: ->
+        @unsubscribe = @parent.parent.subscribe type: 'queryCancel', id: @get('id'), => @cancel()
+    write: (msg) ->
+        if @ended then throw "this reply has ended"
+        @parent.send msg, @id, false
+        
+    end: (msg) ->
+        if not @ended then @ended = true else throw "this reply has ended"
+        @parent.send msg, @id, true
+        
+    cancel: ->
+        @ended = true
+        @trigger 'cancel'
 
 server = exports.server = core.protocol.extend4000
     name: 'queryServer'

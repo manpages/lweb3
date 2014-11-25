@@ -58,7 +58,7 @@ exports.QueryProtocol = (test) ->
 
         s.queryServer.subscribe { test: Number }, (msg, reply) ->
             reply.write reply: msg.test + 3
-            reply.end reply: msg.test + 2
+            helpers.wait 100, -> reply.end reply: msg.test + 2
 
         total = 0
 
@@ -70,7 +70,27 @@ exports.QueryProtocol = (test) ->
 
 
 exports.QueryProtocolCancel = (test) ->
+    query = require('./protocols/query')
     
+    gimmeEnv (lwebs, s, c,done) ->
+        s.addProtocol new query.server()
+        c.addProtocol new query.client()
+
+        s.queryServer.subscribe { test: Number }, (msg, reply) ->
+            reply.write reply: msg.test + 3
+            helpers.wait 100, -> test.equal reply.ended, true
+
+        total = 0
+
+        query = c.queryClient.send { test: 7 }, (msg, end) ->
+            query.end()
+            total += msg.reply
+            
+            c.subscribe { type: 'reply', end: true }, (msg) ->
+                test.ok false, "didnt cancel"
+                
+            helpers.wait 200, -> test.done()
+        
 
 exports.ChannelProtocol = (test) ->
     query = require('protocols/query')
@@ -95,3 +115,6 @@ exports.ChannelProtocol = (test) ->
                         done test
                     
             s.channel.testchannel.broadcast { test: 1, bla: 3 }
+
+
+#exports.QueryProtocolCancel true
