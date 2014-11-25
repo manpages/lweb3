@@ -27,7 +27,6 @@
     },
     initialize: function() {
       var channelClass, http;
-      console.log("INIT");
       http = this.get('http');
       channelClass = webSocketChannel.extend4000(this.get('channelClass'));
       this.socketIo = io.listen(http, {

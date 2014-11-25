@@ -12,14 +12,12 @@ core = require '../../core'
 _.extend exports, websocket = require './websocket'
 
 
-                                        
 webSocketServer = core.server.extend4000 validator.ValidatedModel,
     validator:
         http: 'Instance'
         channelClass: 'Function'
         
     initialize: ->
-        console.log "INIT"
         http = @get 'http'
         channelClass = webSocketChannel.extend4000 @get('channelClass')
         @socketIo = io.listen http, log: false
