@@ -10,6 +10,13 @@
     "type": "git",
     "url": "git@github.com:leshy/lweb3.git"
   },
+  "dependencies": {
+    "backbone4000": "git://github.com/leshy/backbone4000.git",
+    "helpers": "git://github.com/leshy/nodejs-helpers.git",
+    "decorators": "git://github.com/leshy/nodejs-decorators.git",
+    "underscore": "underscore >= 1.4.x",
+    "socket.io-browserify": "~0.9.6"
+  },
   "author": "lesh",
   "license": "ISC",
   "bugs": {

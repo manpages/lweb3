@@ -1,25 +1,29 @@
-b = require 'backbone4000'
+_ = require 'underscore'
+Backbone = require 'backbone4000'
+helpers = require 'helpers'
 
-Core = b.Model.extend4000
+subscriptionMan = require('subscriptionman2')
+validator = require('validator2-extras'); v = validator.v
+
+core = exports.core = Backbone.Model.extend4000
     initialize: ->
         if parent = @get 'parent'  then @parent = parent
         @verbose = @get('verbose') or @parent?verbose or false
         
-Channel = core.extend4000
+channel = exports.channel = core.extend4000
     send: (msg) -> true
     receive: (callback) -> true
 
-QueryClient = core.extend4000
+queryClient = exports.queryClient = core.extend4000
     query: (msg,callback) -> true
 
-QueryServer = core.extend4000
+queryServer = exports.queryServer =core.extend4000
     subscribe: (pattern,callback) -> true
 
-QueryBydirectional = core.extend4000 QueryClient, QueryServer
+queryBydirectional = exports.queryBydirectional = core.extend4000 queryClient, queryServer
 
 # has events like 'connect' and 'disconnect', provides client objects
-Server = core.extend4000, subscriptionMan.basic
-    validator: clientClass
+server = exports.server = core.extend4000, {}
 
 
         
