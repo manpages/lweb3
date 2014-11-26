@@ -53,7 +53,6 @@
   });
 
   clientChannel = core.core.extend4000({
-    name: 'channelClient',
     initialize: function() {
       return this.name = this.get('name');
     },

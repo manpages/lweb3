@@ -28,7 +28,6 @@ channelInterface = core.protocol.extend4000
 
 
 clientChannel = core.core.extend4000
-    name: 'channelClient'
     initialize: ->
         @name = @get 'name'
 
@@ -85,4 +84,3 @@ server = exports.server = channelInterface.extend4000
             parent.queryServer.subscribe { joinChannel: String }, (msg,reply) =>
                 if @verbose then console.log "join request received for #" + msg.joinChannel
                 @channel(msg.joinChannel).join reply, msg.pattern
-                

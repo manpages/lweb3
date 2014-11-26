@@ -93,7 +93,6 @@ exports.QueryProtocolCancel = (test) ->
         
 
 exports.ChannelProtocol = (test) ->
-    query = require('./protocols/query')
     channel = require('./protocols/channel')
 
     gimmeEnv (lwebs, s, c,done) ->        
@@ -115,3 +114,15 @@ exports.ChannelProtocol = (test) ->
             
             s.channelServer.channel('testchannel').broadcast { test: 1, bla: 3 }
 
+
+exports.CollectionProtocol = (test) ->
+    collection = require('./protocols/collection')
+    gimmeEnv (lwebs,s,c,done) ->
+        s.addProtocol new collection.server verbose: true, backend: new Mongo(db: db)
+        c.addProtocol new collection.client verbose: true
+
+        s.defineCollection 'bla'
+        c.defineCollection 'bla'
+
+        c.collection.bla.findModels {},{}, (err,model) ->
+            console.log model

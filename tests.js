@@ -152,8 +152,7 @@
   };
 
   exports.ChannelProtocol = function(test) {
-    var channel, query;
-    query = require('./protocols/query');
+    var channel;
     channel = require('./protocols/channel');
     return gimmeEnv(function(lwebs, s, c, done) {
       s.addProtocol(new channel.server({
@@ -185,6 +184,27 @@
           test: 1,
           bla: 3
         });
+      });
+    });
+  };
+
+  exports.CollectionProtocol = function(test) {
+    var collection;
+    collection = require('./protocols/collection');
+    return gimmeEnv(function(lwebs, s, c, done) {
+      s.addProtocol(new collection.server({
+        verbose: true,
+        backend: new Mongo({
+          db: db
+        })
+      }));
+      c.addProtocol(new collection.client({
+        verbose: true
+      }));
+      s.defineCollection('bla');
+      c.defineCollection('bla');
+      return c.collection.bla.findModels({}, {}, function(err, model) {
+        return console.log(model);
       });
     });
   };
