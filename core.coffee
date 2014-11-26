@@ -11,6 +11,9 @@ core = exports.core = subscriptionMan.fancy.extend4000
         @when 'parent', (@parent) => @verbose = @get('verbose') or @parent?verbose or false
     
 channel = exports.channel = core.extend4000
+    initialize: ->
+        @protocols = {}
+        
     send: (msg) -> throw "I'm a default channel, cant send msg #{msg}"
     stop: (callback) -> throw "I'm a default channel, cant stop me"
 
@@ -25,8 +28,7 @@ channel = exports.channel = core.extend4000
         
         @[protocol.name] = protocol
         protocol.set parent: @
-
-                
+        if protocol.functions then _.extend @, protocol.functions()
         
 protocol = exports.protocol = core.extend4000
     requires: []

@@ -28,6 +28,11 @@
       timeout: v().Default(3000).Number()
     },
     name: 'queryClient',
+    functions: function() {
+      return {
+        query: _.bind(this.send, this)
+      };
+    },
     initialize: function() {
       return this.when('parent', (function(_this) {
         return function(parent) {
@@ -109,6 +114,11 @@
 
   server = exports.server = core.protocol.extend4000({
     name: 'queryServer',
+    functions: function() {
+      return {
+        onQuery: _.bind(this.subscribe, this)
+      };
+    },
     initialize: function() {
       return this.when('parent', (function(_this) {
         return function(parent) {

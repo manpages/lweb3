@@ -99,16 +99,16 @@ exports.ChannelProtocol = (test) ->
         s.addProtocol new channel.server( verbose: true )
         c.addProtocol new channel.client( verbose: true )
 
-        c.channelClient.join 'testchannel', (err,channel) ->
+        c.join 'testchannel', (err,channel) ->
             if err then return test.fail()
 
-            test.equal channel, c.channelClient.channels.testchannel 
+            test.equal channel, c.channel('testchannel')
             console.log 'joined!'
             channel.subscribe { test: 1 }, (msg) ->
                 test.equal msg.bla, 3, "BLA ISNT 3"
 
                 channel.part()
-                s.channelServer.channels.testchannel.broadcast { test: 2, bla: 4 }
+                s.channels.testchannel.broadcast { test: 2, bla: 4 }
                 helpers.wait 100, ->
                     done test
             

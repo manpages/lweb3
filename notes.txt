@@ -6,9 +6,8 @@
 ** DONE make a remote subscription system based on query-replies
 ** DONEISH implement reply timeouts? think.
 ** TODO make some simple verbosing system
+** TODO !!! what happens when a client disconnects? work on garbage collection across protocols
 ** DONE remote subscription system on top of the channel system?
-** TODO protocols provide tags and require tags + have recomendations on how to get tags automatically
-** TODO protocols lay directly onto the lweb channel object, not on top
 ** TODO profit
 
 * TOMORROW

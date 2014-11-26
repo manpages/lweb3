@@ -73,7 +73,7 @@
       if (pattern) {
         msg.pattern = pattern;
       }
-      return this.query = this.parent.parent.queryClient.send(msg, (function(_this) {
+      return this.query = this.parent.parent.query(msg, (function(_this) {
         return function(msg) {
           if (msg.joined) {
             return callback(void 0, _this);
@@ -92,6 +92,13 @@
   client = exports.client = channelInterface.extend4000({
     name: 'channelClient',
     requires: [query.client],
+    functions: function() {
+      return {
+        channel: _.bind(this.channel, this),
+        channels: this.channels,
+        join: _.bind(this.join, this)
+      };
+    },
     channelClass: clientChannel,
     join: function(name, pattern, callback) {
       return this.channel(name).join(pattern, callback);
@@ -129,11 +136,17 @@
   server = exports.server = channelInterface.extend4000({
     name: 'channelServer',
     requires: [query.server],
+    functions: function() {
+      return {
+        channel: _.bind(this.channel, this),
+        channels: this.channels
+      };
+    },
     channelClass: serverChannel,
     initialize: function() {
       return this.when('parent', (function(_this) {
         return function(parent) {
-          return parent.queryServer.subscribe({
+          return parent.onQuery({
             joinChannel: String
           }, function(msg, reply) {
             if (_this.verbose) {

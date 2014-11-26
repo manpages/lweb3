@@ -30,6 +30,3 @@ server = exports.server = collectionProtocol.extend4000
     requires: [ channel.server ]
     collectionClass: serverCollection
 
-
-
-    

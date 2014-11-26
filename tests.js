@@ -161,18 +161,18 @@
       c.addProtocol(new channel.client({
         verbose: true
       }));
-      return c.channelClient.join('testchannel', function(err, channel) {
+      return c.join('testchannel', function(err, channel) {
         if (err) {
           return test.fail();
         }
-        test.equal(channel, c.channelClient.channels.testchannel);
+        test.equal(channel, c.channel('testchannel'));
         console.log('joined!');
         channel.subscribe({
           test: 1
         }, function(msg) {
           test.equal(msg.bla, 3, "BLA ISNT 3");
           channel.part();
-          s.channelServer.channels.testchannel.broadcast({
+          s.channels.testchannel.broadcast({
             test: 2,
             bla: 4
           });

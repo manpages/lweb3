@@ -38,7 +38,7 @@ clientChannel = core.core.extend4000
         msg = joinChannel: @name
         if pattern then msg.pattern = pattern
             
-        @query = @parent.parent.queryClient.send msg, (msg) =>
+        @query = @parent.parent.query msg, (msg) =>
             if msg.joined then callback undefined, @
             else @event msg
             
@@ -50,6 +50,12 @@ clientChannel = core.core.extend4000
 client = exports.client = channelInterface.extend4000
     name: 'channelClient'
     requires: [ query.client ]
+
+    functions: ->
+        channel: _.bind @channel, @
+        channels: @channels
+        join: _.bind @join, @
+
     channelClass: clientChannel
     join: (name,pattern,callback) -> @channel(name).join pattern, callback
     
@@ -77,10 +83,16 @@ serverChannel = core.core.extend4000
 server = exports.server = channelInterface.extend4000
     name: 'channelServer'
     requires: [ query.server ]
+
+    functions: ->
+        channel: _.bind @channel, @
+        channels: @channels
+
     channelClass: serverChannel
+
         
     initialize: ->
         @when 'parent', (parent) =>
-            parent.queryServer.subscribe { joinChannel: String }, (msg,reply) =>
+            parent.onQuery { joinChannel: String }, (msg,reply) =>
                 if @verbose then console.log "join request received for #" + msg.joinChannel
                 @channel(msg.joinChannel).join reply, msg.pattern

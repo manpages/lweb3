@@ -27,6 +27,9 @@
   });
 
   channel = exports.channel = core.extend4000({
+    initialize: function() {
+      return this.protocols = {};
+    },
     send: function(msg) {
       throw "I'm a default channel, cant send msg " + msg;
     },
@@ -51,9 +54,12 @@
         };
       })(this));
       this[protocol.name] = protocol;
-      return protocol.set({
+      protocol.set({
         parent: this
       });
+      if (protocol.functions) {
+        return _.extend(this, protocol.functions());
+      }
     }
   });
 

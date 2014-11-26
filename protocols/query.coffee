@@ -18,10 +18,12 @@ client = exports.client = core.protocol.extend4000 validator.ValidatedModel,
 
     name: 'queryClient'
 
+    functions: ->
+        query: _.bind @send, @
+        
     initialize: ->
         @when 'parent', (parent) =>
-            parent.subscribe { type: 'reply', id: String }, (msg) => @event msg
-            
+            parent.subscribe { type: 'reply', id: String }, (msg) => @event msg    
 
     end: (id) ->
         @parent.send { type: 'queryCancel', id: id }
@@ -58,6 +60,9 @@ reply = core.core.extend4000
 
 server = exports.server = core.protocol.extend4000
     name: 'queryServer'
+    
+    functions: ->
+        onQuery: _.bind @subscribe, @
 
     initialize: ->
         @when 'parent', (parent) =>
