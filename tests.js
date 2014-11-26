@@ -170,9 +170,16 @@
   };
 
   exports.ChannelProtocol = function(test) {
-    var channel;
+    var channel, query;
     channel = require('./protocols/channel');
+    query = require('./protocols/query');
     return gimmeEnv(function(lwebs, s, c, done) {
+      s.addProtocol(new query.server({
+        verbose: true
+      }));
+      c.addProtocol(new query.client({
+        verbose: true
+      }));
       s.addProtocol(new channel.server({
         verbose: true
       }));
@@ -245,5 +252,7 @@
     return Test;
 
   })();
+
+  exports.ChannelProtocol(new Test());
 
 }).call(this);

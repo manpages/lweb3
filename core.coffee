@@ -34,7 +34,7 @@ channel = exports.channel = core.extend4000
     send: (msg) -> throw "I'm a default channel, cant send msg #{msg}"
 
     hasProtocol: (protocol) ->
-        if typeof protocol is 'function' then return Boolean @[protocol::?defaults?.name]
+        if typeof protocol is 'function' then return Boolean @[protocol::defaults.name]
         if typeof protocol is 'object' then return Boolean @[protocol.name()]
         throw "what is this?"
         

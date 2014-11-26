@@ -104,12 +104,13 @@ exports.QueryProtocolCancel = (test) ->
 
 exports.ChannelProtocol = (test) ->
     channel = require('./protocols/channel')
+    query = require('./protocols/query')
 
     gimmeEnv (lwebs, s, c, done) ->
-        
+        s.addProtocol new query.server( verbose: true )
+        c.addProtocol new query.client( verbose: true )
         s.addProtocol new channel.server( verbose: true )
         c.addProtocol new channel.client( verbose: true )
-
 
         c.join 'testchannel', (err,channel) ->
             if err then return test.fail()
@@ -142,7 +143,6 @@ exports.CollectionProtocol = (test) ->
         c.collection.bla.findModels {},{}, (err,model) ->
             console.log model
 
-
 class Test
     done: ->
         console.log 'test done'
@@ -151,4 +151,4 @@ class Test
         if x isnt y then throw "not equal"            
 
 
-#exports.CollectionProtocol new Test()
+exports.ChannelProtocol new Test()

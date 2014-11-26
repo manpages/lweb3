@@ -62,7 +62,7 @@
     },
     hasProtocol: function(protocol) {
       if (typeof protocol === 'function') {
-        return Boolean(this[typeof protocol.prototype === "function" ? protocol.prototype(typeof defaults !== "undefined" && defaults !== null ? defaults.name : void 0) : void 0]);
+        return Boolean(this[protocol.prototype.defaults.name]);
       }
       if (typeof protocol === 'object') {
         return Boolean(this[protocol.name()]);

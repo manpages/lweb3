@@ -8,7 +8,8 @@ validator = require('validator2-extras'); v = validator.v
 core = require '../core'
 query = require './query'
 
-manyBabies = (name) ->
+
+motherShip = (name) ->
     model = {}
 
     model.initialize = ->
@@ -20,21 +21,18 @@ manyBabies = (name) ->
         instance.once 'end', => delete @[name + "s"][instanceName]
         return instance
     
-    Backbone.Model.extend4000 {}
+    Backbone.Model.extend4000 model
 
 
 #channelInterface = core.manyBabies 'channel'
     
 
-channelInterface = core.protocol.extend4000
-    initialize: ->
-        @channels = {}
-
-    channel: (channelname) ->
-        if channel = @channels[channelname] then return channel
-        channel = @channels[channelname] = new @channelClass parent: @, name: channelname
-        channel.once 'end', => delete @channels[channelname]
-        return channel
+channelInterface = core.protocol.extend4000 motherShip('channel'),
+#    channel: (channelname) ->
+#        if channel = @channels[channelname] then return channel
+#        channel = @channels[channelname] = new @channelClass parent: @, name: channelname
+#        channel.once 'end', => delete @channels[channelname]
+#        return channel
 
     channelsubscribe: (channelname, pattern, callback) ->
         channel = @channel(channelname)
