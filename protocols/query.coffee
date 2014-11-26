@@ -51,7 +51,6 @@ client = exports.client = core.protocol.extend4000 validator.ValidatedModel,
         return new query parent: @, id: id, unsubscribe: unsubscribe
 
 reply = core.core.extend4000
-    
     initialize: ->
         @set name: @get 'id'
         @unsubscribe = @parent.parent.subscribe type: 'queryCancel', id: @get('id'), =>

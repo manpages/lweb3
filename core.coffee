@@ -13,10 +13,12 @@ core = exports.core = subscriptionMan.fancy.extend4000
         #console.log "initializing",@name(), @verbose
         @when 'parent', (@parent) =>
             @verbose = @get('verbose') or @parent?.verbose or false
+            
     name: ->
         if @parent then @parent.name() + "-" + @get('name')
         else @get('name') or 'noname'
-    end: () ->
+        
+    end: ->
         if @ended then return else @ended = true
         @log 'ending'
         @trigger 'end'

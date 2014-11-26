@@ -3,7 +3,6 @@ validator = require('validator2-extras'); v = validator.v
 Server = require './transports/server/websocket'
 Client = require './transports/client/websocket'
 
-
 helpers = require 'helpers'
 express = require 'express'
 Http = require 'http'
@@ -43,12 +42,18 @@ exports.init = (test) ->
         
 exports.ClientSend = (test) ->
     gimmeEnv (lwebs, s, c, done) ->
+        s.verbose = true
+        c.verbose = true
+        cnt = 0
         s.subscribe { test: true}, (msg) ->
-            done test            
+            done test
+                
         c.send { test: 1 }
 
 exports.ServerSend = (test) ->
     gimmeEnv (lwebs, s, c, done) ->
+        s.verbose = true
+        c.verbose = true
         c.subscribe { test: true}, (msg) ->
             done test
 
@@ -125,9 +130,12 @@ exports.ChannelProtocol = (test) ->
 exports.CollectionProtocol = (test) ->
     collection = require('./protocols/collection')
     gimmeEnv (lwebs,s,c,done) ->
-        s.addProtocol new collection.server verbose: true, backend: new Mongo(db: db)
+        s.addProtocol new collection.server verbose: true, defaultBackend: MongoCollection.extend4000 db: Mongo
         c.addProtocol new collection.client verbose: true
 
+
+        s.collection('bla')
+        
         s.defineCollection 'bla'
         c.defineCollection 'bla'
 
@@ -140,8 +148,7 @@ class Test
         console.log 'test done'
 #        process.exit(0)
     equal: (x,y) ->
-        if x isnt y then throw "not equal"
-            
+        if x isnt y then throw "not equal"            
 
 
 #exports.CollectionProtocol new Test()

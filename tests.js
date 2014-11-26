@@ -63,6 +63,10 @@
 
   exports.ClientSend = function(test) {
     return gimmeEnv(function(lwebs, s, c, done) {
+      var cnt;
+      s.verbose = true;
+      c.verbose = true;
+      cnt = 0;
       s.subscribe({
         test: true
       }, function(msg) {
@@ -76,6 +80,8 @@
 
   exports.ServerSend = function(test) {
     return gimmeEnv(function(lwebs, s, c, done) {
+      s.verbose = true;
+      c.verbose = true;
       c.subscribe({
         test: true
       }, function(msg) {
@@ -207,13 +213,14 @@
     return gimmeEnv(function(lwebs, s, c, done) {
       s.addProtocol(new collection.server({
         verbose: true,
-        backend: new Mongo({
-          db: db
+        defaultBackend: MongoCollection.extend4000({
+          db: Mongo
         })
       }));
       c.addProtocol(new collection.client({
         verbose: true
       }));
+      s.collection('bla');
       s.defineCollection('bla');
       c.defineCollection('bla');
       return c.collection.bla.findModels({}, {}, function(err, model) {
