@@ -170,7 +170,7 @@
         channel.subscribe({
           test: 1
         }, function(msg) {
-          test.equal(msg.bla, 3, "BLA ISNT 3");
+          test.equal(msg.bla, 3, "bla isn't 3. BLA ISN'T 3 MAN!!!");
           channel.part();
           s.channels.testchannel.broadcast({
             test: 2,
