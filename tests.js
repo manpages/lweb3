@@ -215,23 +215,56 @@
   };
 
   exports.CollectionProtocol = function(test) {
-    var collection;
-    collection = require('./protocols/collection');
+    var channel, collectionProtocol, collections, mongodb, query;
+    mongodb = require('mongodb');
+    channel = require('./protocols/channel');
+    query = require('./protocols/query');
+    collectionProtocol = require('./protocols/collection');
+    collections = require('collections/serverside');
     return gimmeEnv(function(lwebs, s, c, done) {
-      s.addProtocol(new collection.server({
-        verbose: true,
-        defaultBackend: MongoCollection.extend4000({
-          db: Mongo
-        })
-      }));
-      c.addProtocol(new collection.client({
-        verbose: true
-      }));
-      s.collection('bla');
-      s.defineCollection('bla');
-      c.defineCollection('bla');
-      return c.collection.bla.findModels({}, {}, function(err, model) {
-        return console.log(model);
+      return helpers.wait(100, function() {
+        var db;
+        db = new mongodb.Db('testdb', new mongodb.Server('localhost', 27017), {
+          safe: true
+        });
+        return db.open(function(err, data) {
+          var clientC, clientM, serverC, serverM, x;
+          if (err) {
+            test.fail(err);
+          }
+          s.addProtocol(new query.server({
+            verbose: true
+          }));
+          c.addProtocol(new query.client({
+            verbose: true
+          }));
+          s.addProtocol(new channel.server({
+            verbose: true
+          }));
+          c.addProtocol(new channel.client({
+            verbose: true
+          }));
+          s.addProtocol(new collectionProtocol.server({
+            verbose: true,
+            collectionClass: collectionProtocol.serverCollection.extend4000(collections.MongoCollection, {
+              defaults: {
+                db: db
+              }
+            })
+          }));
+          c.addProtocol(new collectionProtocol.client({
+            verbose: true,
+            collectionClass: collectionProtocol.clientCollection.extend4000(collections.ModelMixin, collections.ReferenceMixin, collections.RequestIdMixin, collections.CachingMixin)
+          }));
+          serverC = s.collection('bla');
+          serverM = serverC.defineModel('bla', {});
+          clientC = c.collection('bla');
+          clientM = clientC.defineModel('bla', {});
+          x = new serverM({
+            test: 'data'
+          });
+          return x.flush();
+        });
       });
     });
   };
@@ -252,5 +285,7 @@
     return Test;
 
   })();
+
+  exports.CollectionProtocol(new Test());
 
 }).call(this);

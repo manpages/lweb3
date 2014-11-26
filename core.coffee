@@ -74,8 +74,12 @@ motherShip = exports.motherShip = (name) ->
 
     model[name] = (instanceName) ->
         if instance = @[name + "s"][instanceName] then return instance
-        instance = @[name + "s"][instanceName] = new @[name + "Class"] { parent: @, name: instanceName }
+
+        instanceClass = @get(name + "Class")
+        if not instanceClass then throw "I don't have " + name + "Class defined"
+        instance = @[name + "s"][instanceName] = new instanceClass { parent: @, name: instanceName }
         instance.once 'end', => delete @[name + "s"][instanceName]
+        @trigger 'new' + helpers.capitalize(name), instance
         return instance
     
     Backbone.Model.extend4000 model

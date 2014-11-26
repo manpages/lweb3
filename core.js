@@ -111,11 +111,15 @@
       return this[name + "s"] = {};
     };
     model[name] = function(instanceName) {
-      var instance;
+      var instance, instanceClass;
       if (instance = this[name + "s"][instanceName]) {
         return instance;
       }
-      instance = this[name + "s"][instanceName] = new this[name + "Class"]({
+      instanceClass = this.get(name + "Class");
+      if (!instanceClass) {
+        throw "I don't have " + name + "Class defined";
+      }
+      instance = this[name + "s"][instanceName] = new instanceClass({
         parent: this,
         name: instanceName
       });
@@ -124,6 +128,7 @@
           return delete _this[name + "s"][instanceName];
         };
       })(this));
+      this.trigger('new' + helpers.capitalize(name), instance);
       return instance;
     };
     return Backbone.Model.extend4000(model);

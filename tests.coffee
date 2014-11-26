@@ -129,19 +129,35 @@ exports.ChannelProtocol = (test) ->
 
 
 exports.CollectionProtocol = (test) ->
-    collection = require('./protocols/collection')
+    mongodb = require 'mongodb'
+    channel = require('./protocols/channel')
+    query = require('./protocols/query')
+    collectionProtocol = require './protocols/collection'
+    collections = require 'collections/serverside'
     gimmeEnv (lwebs,s,c,done) ->
-        s.addProtocol new collection.server verbose: true, defaultBackend: MongoCollection.extend4000 db: Mongo
-        c.addProtocol new collection.client verbose: true
+        helpers.wait 100, -> 
+            db = new mongodb.Db 'testdb', new mongodb.Server('localhost', 27017), safe: true
+            db.open (err,data) ->
+                if err then test.fail err
+                s.addProtocol new query.server( verbose: true )
+                c.addProtocol new query.client( verbose: true )
+                s.addProtocol new channel.server( verbose: true )
+                c.addProtocol new channel.client( verbose: true )
+                s.addProtocol new collectionProtocol.server
+                    verbose: true,
+                    collectionClass: collectionProtocol.serverCollection.extend4000 collections.MongoCollection, { defaults: { db: db } }
+                        
+                c.addProtocol new collectionProtocol.client verbose: true, collectionClass:
+                    collectionProtocol.clientCollection.extend4000 collections.ModelMixin, collections.ReferenceMixin, collections.RequestIdMixin, collections.CachingMixin
 
-
-        s.collection('bla')
-        
-        s.defineCollection 'bla'
-        c.defineCollection 'bla'
-
-        c.collection.bla.findModels {},{}, (err,model) ->
-            console.log model
+                serverC = s.collection('bla')
+                serverM = serverC.defineModel 'bla', {}
+                
+                clientC = c.collection('bla')
+                clientM = clientC.defineModel 'bla', {}
+                
+                x = new serverM({test:'data' })
+                x.flush()
 
 class Test
     done: ->
@@ -151,4 +167,4 @@ class Test
         if x isnt y then throw "not equal"            
 
 
-#exports.ChannelProtocol new Test()
+exports.CollectionProtocol new Test()

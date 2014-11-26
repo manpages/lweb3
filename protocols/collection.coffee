@@ -8,9 +8,14 @@ validator = require('validator2-extras'); v = validator.v
 core = require '../core'
 channel = require './channel'
 
-collectionInterface = core.core.extend4000, {}
+collectionInterface = core.core.extend4000 {}
 
-collectionProtocol = core.protocol.extend4000, {}
+collectionProtocol = core.protocol.extend4000 core.motherShip('collection'),
+    functions: ->
+        collection: _.bind @collection, @
+        collections: @collections
+        
+
 
 queryToCallback = (callback) ->
     (msg,end) ->
@@ -18,7 +23,7 @@ queryToCallback = (callback) ->
         callback msg.err, msg.data
         
 
-clientCollection = collectionInterface.extend4000
+clientCollection = exports.clientCollection = collectionInterface.extend4000
     initialize: ->
         @name = @get 'name'
 
@@ -27,6 +32,7 @@ clientCollection = collectionInterface.extend4000
         @parent.query msg,callback
 
     create: (data,callback) ->
+        @log 'create',data
         @query { create: pattern }, queryToCallback callback
 
     remote: (pattern,callback) -> 
@@ -43,20 +49,21 @@ clientCollection = collectionInterface.extend4000
         if limits then query.limits = limits
             
         @query query, (msg,end) ->
-            if end then return callbackDone null end
+            if end then return callbackDone null, end
             callback null, msg
-
                
 client = exports.client = collectionProtocol.extend4000
-    name: 'collectionClient'
+    defaults:
+        name: 'collectionClient'
+        collectionClass: clientCollection
     requires: [ channel.client ]
-    collectionClass: clientCollection
     
-serverCollection = collectionInterface.extend4000
+serverCollection = exports.serverCollection = collectionInterface.extend4000
     initialize: ->
         @name = @get 'name'
 
-        @when 'parent', (parent) -> parent.onQuery { collection: @name }, @event
+        @when 'parent', (parent) ->
+            parent.parent.onQuery { collection: @name }, @event
 
         callbackToRes = (res) -> (err,data) ->
             if err?.name then err = err.name
@@ -91,9 +98,8 @@ serverCollection = collectionInterface.extend4000
                     
             bucket.done(err,data) -> res.end()    
 
-
 server = exports.server = collectionProtocol.extend4000
-    name: 'collectionServer', 'collection'
+    defaults:
+        name: 'collectionServer'
     requires: [ channel.server ]
-    collectionClass: serverCollection
 
