@@ -117,4 +117,9 @@ exports.ChannelProtocol = (test) ->
             s.channel.testchannel.broadcast { test: 1, bla: 3 }
 
 
-exports.ChannelProtocol true
+class Test
+    ok: ->
+    fail: ->
+    done: -> console.log 'done'
+
+exports.ChannelProtocol new Test()

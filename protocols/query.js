@@ -27,6 +27,7 @@
     validator: {
       timeout: v().Default(3000).Number()
     },
+    name: 'queryClient',
     initialize: function() {
       return this.when('parent', (function(_this) {
         return function(parent) {
@@ -39,7 +40,6 @@
         };
       })(this));
     },
-    name: 'queryClient',
     end: function(id) {
       return this.parent.send({
         type: 'queryCancel',

@@ -14,7 +14,7 @@ channelInterface = core.protocol.extend4000
 
     channel: (channelname) ->
         if channel = @channels[channelname] then return channel
-        channel = @channels[channelname] = new @ChannelClass parent: @, name: channelname
+        channel = @channels[channelname] = new @channelClass parent: @, name: channelname
         channel.once 'del', => delete @channels[channelname]
         return channel
 
@@ -24,7 +24,7 @@ channelInterface = core.protocol.extend4000
         channel.subscribe pattern, callback
 
     broadcast: (channel,message) -> true
-    join: (name,pattern,callback) -> @channel('name').join pattern,callback
+    join: (name,pattern,callback) -> @channel('name').join pattern, callback
     part: (channel,listener) -> true
     del: -> true      
 
@@ -41,7 +41,7 @@ clientChannel = core.core.extend4000
         msg = join: @name
         if pattern then msg.pattern = pattern
             
-        @query = @parent.parent.query.send msg, (msg) =>
+        @query = @parent.parent.queryClient.send msg, (msg) =>
             @event msg.payload
         if callback then @subscribe true, callback
             
@@ -50,7 +50,9 @@ clientChannel = core.core.extend4000
         @query.cancel()
 
 client = exports.client = channelInterface.extend4000
-    requires: [ query.client ]        
+    name: 'channelClient'
+    requires: [ query.client ]
+    channelClass: clientChannel
     
 serverChannel = core.core.extend4000
     initialize: ->
@@ -58,7 +60,7 @@ serverChannel = core.core.extend4000
         @clients = []
         
     join: (reply,pattern) ->
-        @subscribe pattern or true, (msg)
+        @subscribe pattern or true, (msg) -> 
             reply.write msg
 
     part: (reply) ->
@@ -75,9 +77,10 @@ serverChannel = core.core.extend4000
 server = exports.server = channelInterface.extend4000
     name: 'channelServer'
     requires: [ query.server ]
+    channelClass: serverChannel
+
     initialize: ->
         @when 'parent', (parent) =>
-            parent.query.subscribe { join: String }, (msg,reply) =>
+            parent.queryServer.subscribe { join: String }, (msg,reply) =>
                 @channel(msg.join).join reply, msg.pattern
                 
-    

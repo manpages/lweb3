@@ -37,21 +37,22 @@
       return Boolean(this[protocol.name] || this[typeof protocol.prototype === "function" ? protocol.prototype(name) : void 0]);
     },
     addProtocol: function(protocol) {
-      console.log(protocol);
       if (!protocol.name) {
         throw "what is this?";
       }
       if (this.hasProtocol(protocol)) {
         throw "this protocol (" + protocol.name + ") is already active on channel";
       }
+      _.map(protocol.requires, (function(_this) {
+        return function(protocol) {
+          if (!_this.hasProtocol(protocol)) {
+            return _this.addProtocol(new protocol());
+          }
+        };
+      })(this));
       this[protocol.name] = protocol;
-      protocol.set({
+      return protocol.set({
         parent: this
-      });
-      return _.map(protocol.requires, function(protocol) {
-        if (!this.hasProtocol(protocol)) {
-          return this.addProtocol(new protocol());
-        }
       });
     }
   });

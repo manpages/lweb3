@@ -27,7 +27,7 @@
       if (channel = this.channels[channelname]) {
         return channel;
       }
-      channel = this.channels[channelname] = new this.ChannelClass({
+      channel = this.channels[channelname] = new this.channelClass({
         parent: this,
         name: channelname
       });
@@ -50,8 +50,8 @@
     broadcast: function(channel, message) {
       return true;
     },
-    join: function(channel, listener) {
-      return true;
+    join: function(name, pattern, callback) {
+      return this.channel('name').join(pattern, callback);
     },
     part: function(channel, listener) {
       return true;
@@ -62,21 +62,30 @@
   });
 
   clientChannel = core.core.extend4000({
+    name: 'channelClient',
     initialize: function() {
       return this.name = this.get('name');
     },
-    join: function(callback) {
+    join: function(pattern, callback) {
+      var msg;
+      if (!callback) {
+        callback = pattern;
+        pattern = void 0;
+      }
       if (this.joined) {
         return;
       } else {
         this.joined = true;
       }
-      this.query = this.parent.parent.query.send({
+      msg = {
         join: this.name
-      }, (function(_this) {
+      };
+      if (pattern) {
+        msg.pattern = pattern;
+      }
+      this.query = this.parent.parent.queryClient.send(msg, (function(_this) {
         return function(msg) {
-          _this.event(msg.payload);
-          return j;
+          return _this.event(msg.payload);
         };
       })(this));
       if (callback) {
@@ -90,7 +99,9 @@
   });
 
   client = exports.client = channelInterface.extend4000({
-    requires: [query.client]
+    name: 'channelClient',
+    requires: [query.client],
+    channelClass: clientChannel
   });
 
   serverChannel = core.core.extend4000({
@@ -98,16 +109,16 @@
       this.name = this.get('name');
       return this.clients = [];
     },
-    join: function(reply) {
-      return this.clients.push(reply);
+    join: function(reply, pattern) {
+      return this.subscribe(pattern || true, function(msg) {
+        return reply.write(msg);
+      });
     },
     part: function(reply) {
       return true;
     },
     broadcast: function(msg) {
-      return _.map(this.clients, function(client) {
-        return client.write(msg);
-      });
+      return this.event(msg);
     },
     end: function(msg) {
       _.map(this.clients, function(client) {
@@ -119,14 +130,16 @@
   });
 
   server = exports.server = channelInterface.extend4000({
+    name: 'channelServer',
     requires: [query.server],
+    channelClass: serverChannel,
     initialize: function() {
       return this.when('parent', (function(_this) {
         return function(parent) {
-          return parent.query.subscribe({
+          return parent.queryServer.subscribe({
             join: String
           }, function(msg, reply) {
-            return _this.channel(msg.join).join(reply);
+            return _this.channel(msg.join).join(reply, msg.pattern);
           });
         };
       })(this));

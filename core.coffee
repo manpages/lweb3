@@ -16,12 +16,17 @@ channel = exports.channel = core.extend4000
 
     hasProtocol: (protocol) -> Boolean @[protocol.name] or @[protocol::?name]
     addProtocol: (protocol) ->
-        console.log protocol
+    
         if not protocol.name then throw "what is this?"
         if @hasProtocol protocol then throw "this protocol (#{protocol.name}) is already active on channel"
+        
+        _.map protocol.requires, (protocol) =>
+            if not @hasProtocol protocol then @addProtocol new protocol()
+        
         @[protocol.name] = protocol
         protocol.set parent: @
-        _.map protocol.requires, (protocol) -> if not @hasProtocol protocol then @addProtocol new protocol()
+
+                
         
 protocol = exports.protocol = core.extend4000
     requires: []

@@ -15,12 +15,13 @@ query = core.core.extend4000
 client = exports.client = core.protocol.extend4000 validator.ValidatedModel,
     validator:
         timeout: v().Default(3000).Number()
-        
+
+    name: 'queryClient'
+
     initialize: ->
         @when 'parent', (parent) =>
             parent.subscribe { type: 'reply', id: String }, (msg) => @event msg
             
-    name: 'queryClient'
 
     end: (id) ->
         @parent.send { type: 'queryCancel', id: id }
