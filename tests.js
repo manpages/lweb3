@@ -253,6 +253,4 @@
 
   })();
 
-  exports.ChannelProtocol(new Test());
-
 }).call(this);

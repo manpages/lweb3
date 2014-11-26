@@ -9,31 +9,8 @@ core = require '../core'
 query = require './query'
 
 
-motherShip = (name) ->
-    model = {}
 
-    model.initialize = ->
-        @[name + "s"] = {}
-
-    model[name] = (instanceName) ->
-        if instance = @[name + "s"][instanceName] then return instance
-        instance = @[name + "s"][instanceName] = new @[name + "Class"] { parent: @, name: instanceName }
-        instance.once 'end', => delete @[name + "s"][instanceName]
-        return instance
-    
-    Backbone.Model.extend4000 model
-
-
-#channelInterface = core.manyBabies 'channel'
-    
-
-channelInterface = core.protocol.extend4000 motherShip('channel'),
-#    channel: (channelname) ->
-#        if channel = @channels[channelname] then return channel
-#        channel = @channels[channelname] = new @channelClass parent: @, name: channelname
-#        channel.once 'end', => delete @channels[channelname]
-#        return channel
-
+channelInterface = core.protocol.extend4000 core.motherShip('channel'),
     channelsubscribe: (channelname, pattern, callback) ->
         channel = @channel(channelname)
         if not callback and pattern.constructor is Function then callback = pattern; pattern = true

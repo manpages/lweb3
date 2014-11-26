@@ -55,3 +55,27 @@ protocol = exports.protocol = core.extend4000
 # has events like 'connect' and 'disconnect', provides client objects
 server = exports.server = core.extend4000
     stop: -> true
+
+
+
+# Just a common pattern,
+# this is for model that hosts bunch of models of a same type with names and references to parent
+# it automatically instantiates new ones when they are mentioned
+#
+# used for channelserver.. for example channelServer.channel('bla') automatically instantiates channelClass with name bla
+#
+# also used for collection server or client
+# 
+motherShip = exports.motherShip = (name) ->
+    model = {}
+
+    model.initialize = ->
+        @[name + "s"] = {}
+
+    model[name] = (instanceName) ->
+        if instance = @[name + "s"][instanceName] then return instance
+        instance = @[name + "s"][instanceName] = new @[name + "Class"] { parent: @, name: instanceName }
+        instance.once 'end', => delete @[name + "s"][instanceName]
+        return instance
+    
+    Backbone.Model.extend4000 model

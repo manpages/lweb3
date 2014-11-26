@@ -151,4 +151,4 @@ class Test
         if x isnt y then throw "not equal"            
 
 
-exports.ChannelProtocol new Test()
+#exports.ChannelProtocol new Test()
