@@ -47,17 +47,8 @@
       }
       return channel.subscribe(pattern, callback);
     },
-    broadcast: function(channel, message) {
-      return true;
-    },
-    join: function(name, pattern, callback) {
-      return this.channel('name').join(pattern, callback);
-    },
-    part: function(channel, listener) {
-      return true;
-    },
-    del: function() {
-      return true;
+    broadcast: function(name, message) {
+      return this.channel(name).broadcast(message);
     }
   });
 
@@ -78,30 +69,34 @@
         this.joined = true;
       }
       msg = {
-        join: this.name
+        joinChannel: this.name
       };
       if (pattern) {
         msg.pattern = pattern;
       }
-      this.query = this.parent.parent.queryClient.send(msg, (function(_this) {
+      return this.query = this.parent.parent.queryClient.send(msg, (function(_this) {
         return function(msg) {
-          return _this.event(msg.payload);
+          if (msg.joined) {
+            return callback(void 0, _this);
+          } else {
+            return _this.event(msg);
+          }
         };
       })(this));
-      if (callback) {
-        return this.subscribe(true, callback);
-      }
     },
     part: function() {
       this.joined = false;
-      return this.query.cancel();
+      return this.query.end();
     }
   });
 
   client = exports.client = channelInterface.extend4000({
     name: 'channelClient',
     requires: [query.client],
-    channelClass: clientChannel
+    channelClass: clientChannel,
+    join: function(name, pattern, callback) {
+      return this.channel(name).join(pattern, callback);
+    }
   });
 
   serverChannel = core.core.extend4000({
@@ -110,6 +105,9 @@
       return this.clients = [];
     },
     join: function(reply, pattern) {
+      reply.write({
+        joined: true
+      });
       return this.subscribe(pattern || true, function(msg) {
         return reply.write(msg);
       });
@@ -137,9 +135,12 @@
       return this.when('parent', (function(_this) {
         return function(parent) {
           return parent.queryServer.subscribe({
-            join: String
+            joinChannel: String
           }, function(msg, reply) {
-            return _this.channel(msg.join).join(reply, msg.pattern);
+            if (_this.verbose) {
+              console.log("join request received for #" + msg.joinChannel);
+            }
+            return _this.channel(msg.joinChannel).join(reply, msg.pattern);
           });
         };
       })(this));

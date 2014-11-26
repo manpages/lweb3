@@ -23,10 +23,8 @@ channelInterface = core.protocol.extend4000
         if not callback and pattern.constructor is Function then callback = pattern; pattern = true
         channel.subscribe pattern, callback
 
-    broadcast: (channel,message) -> true
-    join: (name,pattern,callback) -> @channel('name').join pattern, callback
-    part: (channel,listener) -> true
-    del: -> true      
+    broadcast: (name,message) -> @channel(name).broadcast message
+
 
 
 clientChannel = core.core.extend4000
@@ -38,21 +36,23 @@ clientChannel = core.core.extend4000
         if not callback then callback = pattern; pattern = undefined
         if @joined then return else @joined = true
             
-        msg = join: @name
+        msg = joinChannel: @name
         if pattern then msg.pattern = pattern
             
         @query = @parent.parent.queryClient.send msg, (msg) =>
-            @event msg.payload
-        if callback then @subscribe true, callback
+            if msg.joined then callback undefined, @
+            else @event msg
             
     part: ->
         @joined = false
-        @query.cancel()
+        @query.end()
+
 
 client = exports.client = channelInterface.extend4000
     name: 'channelClient'
     requires: [ query.client ]
     channelClass: clientChannel
+    join: (name,pattern,callback) -> @channel(name).join pattern, callback
     
 serverChannel = core.core.extend4000
     initialize: ->
@@ -60,14 +60,15 @@ serverChannel = core.core.extend4000
         @clients = []
         
     join: (reply,pattern) ->
+        reply.write { joined: true }
+        
         @subscribe pattern or true, (msg) -> 
             reply.write msg
 
     part: (reply) ->
         true
 
-    broadcast: (msg) ->
-        @event msg
+    broadcast: (msg) -> @event msg
 
     end: (msg) ->
         _.map @clients, (client) -> client.end msg
@@ -78,9 +79,10 @@ server = exports.server = channelInterface.extend4000
     name: 'channelServer'
     requires: [ query.server ]
     channelClass: serverChannel
-
+        
     initialize: ->
         @when 'parent', (parent) =>
-            parent.queryServer.subscribe { join: String }, (msg,reply) =>
-                @channel(msg.join).join reply, msg.pattern
+            parent.queryServer.subscribe { joinChannel: String }, (msg,reply) =>
+                if @verbose then console.log "join request received for #" + msg.joinChannel
+                @channel(msg.joinChannel).join reply, msg.pattern
                 

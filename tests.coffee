@@ -97,29 +97,21 @@ exports.ChannelProtocol = (test) ->
     channel = require('./protocols/channel')
 
     gimmeEnv (lwebs, s, c,done) ->        
-        s.addProtocol new channel.server()
-        c.addProtocol new channel.client()
+        s.addProtocol new channel.server( verbose: true )
+        c.addProtocol new channel.client( verbose: true )
 
         c.channelClient.join 'testchannel', (err,channel) ->
             if err then return test.fail()
 
-            test.equal channel, c.channelClient.testchannel
-
+            test.equal channel, c.channelClient.channels.testchannel 
+            console.log 'joined!'
             channel.subscribe { test: 1 }, (msg) ->
-                test.equals msg.bla, 3
+                test.equal msg.bla, 3, "BLA ISNT 3"
 
-                channel.unsubscribe (err,data) ->
-                    if err then return test.fail()
-                    s.channelServer.testchannel.broadcast { test: 2, bla: 4 }
-                    helpers.wait 100, ->
-                        done test
-                    
-            s.channel.testchannel.broadcast { test: 1, bla: 3 }
+                channel.part()
+                s.channelServer.channels.testchannel.broadcast { test: 2, bla: 4 }
+                helpers.wait 100, ->
+                    done test
+            
+            s.channelServer.channel('testchannel').broadcast { test: 1, bla: 3 }
 
-
-class Test
-    ok: ->
-    fail: ->
-    done: -> console.log 'done'
-
-exports.ChannelProtocol new Test()
