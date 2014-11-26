@@ -42,6 +42,11 @@
             type: 'reply',
             id: String
           }, function(msg) {
+            if (msg.end) {
+              _this.log('query completed', msg.id, msg.payload);
+            } else {
+              _this.log('got query reply', msg.id, msg.payload);
+            }
             return _this.event(msg);
           });
           return parent.on('end', function() {
@@ -51,6 +56,7 @@
       })(this));
     },
     endQuery: function(id) {
+      this.log('canceling query', id);
       return this.parent.send({
         type: 'queryCancel',
         id: id
@@ -67,15 +73,18 @@
         id: id = helpers.uuid(10),
         payload: msg
       });
+      this.log('querying', id, msg);
       unsubscribe = this.subscribe({
         type: 'reply',
         id: id
-      }, function(msg) {
-        if (msg.end) {
-          unsubscribe();
-        }
-        return callback(msg.payload, msg.end);
-      });
+      }, (function(_this) {
+        return function(msg) {
+          if (msg.end) {
+            unsubscribe();
+          }
+          return callback(msg.payload, msg.end);
+        };
+      })(this));
       return new query({
         parent: this,
         id: id,
@@ -86,11 +95,15 @@
 
   reply = core.core.extend4000({
     initialize: function() {
+      this.set({
+        name: this.get('id')
+      });
       this.unsubscribe = this.parent.parent.subscribe({
         type: 'queryCancel',
         id: this.get('id')
       }, (function(_this) {
         return function() {
+          _this.log('got query cancel request');
           return _this.cancel();
         };
       })(this));
@@ -102,9 +115,10 @@
     },
     write: function(msg) {
       if (this.ended) {
-        return;
+        return false;
       }
-      return this.parent.send(msg, this.id, false);
+      this.parent.send(msg, this.id, false);
+      return true;
     },
     end: function(msg) {
       if (!this.ended) {
@@ -140,6 +154,7 @@
             type: 'query',
             payload: true
           }, function(msg) {
+            _this.log('got query', msg.id, msg.payload);
             return _this.event(msg.payload, msg.id);
           });
           return parent.on('end', function() {
@@ -160,6 +175,9 @@
       };
       if (end) {
         msg.end = true;
+        this.log('ending query', id, payload);
+      } else {
+        this.log('replying to query', id, payload);
       }
       return this.parent.send(msg);
     },

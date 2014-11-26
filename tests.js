@@ -36,11 +36,11 @@
     http.listen(++port);
     lwebs = new Server.webSocketServer({
       http: http,
-      verbose: true
+      verbose: false
     });
     lwebc = new Client.webSocketClient({
       host: 'http://localhost:' + port,
-      verbose: true
+      verbose: false
     });
     return lwebs.on('connect', function(s) {
       return callback(lwebs, s, lwebc, function(test) {
@@ -66,7 +66,6 @@
       s.subscribe({
         test: true
       }, function(msg) {
-        console.log('done test!');
         return done(test);
       });
       return c.send({
@@ -93,8 +92,12 @@
     query = require('./protocols/query');
     return gimmeEnv(function(lwebs, s, c, done) {
       var total;
-      s.addProtocol(new query.server());
-      c.addProtocol(new query.client());
+      s.addProtocol(new query.server({
+        verbose: true
+      }));
+      c.addProtocol(new query.client({
+        verbose: true
+      }));
       s.queryServer.subscribe({
         test: Number
       }, function(msg, reply) {
@@ -125,8 +128,12 @@
     query = require('./protocols/query');
     return gimmeEnv(function(lwebs, s, c, done) {
       var total;
-      s.addProtocol(new query.server());
-      c.addProtocol(new query.client());
+      s.addProtocol(new query.server({
+        verbose: true
+      }));
+      c.addProtocol(new query.client({
+        verbose: true
+      }));
       s.queryServer.subscribe({
         test: Number
       }, function(msg, reply) {

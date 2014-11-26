@@ -24,10 +24,15 @@ client = exports.client = core.protocol.extend4000 validator.ValidatedModel,
         
     initialize: ->
         @when 'parent', (parent) =>
-            parent.subscribe { type: 'reply', id: String }, (msg) => @event msg    
+            parent.subscribe { type: 'reply', id: String }, (msg) =>
+                if msg.end then @log 'query completed', msg.id, msg.payload
+                else @log 'got query reply', msg.id, msg.payload
+                
+                @event msg
             parent.on 'end', => @end()
             
     endQuery: (id) ->
+        @log 'canceling query', id
         @parent.send { type: 'queryCancel', id: id }
     
     send: (msg, timeout, callback) ->
@@ -36,7 +41,9 @@ client = exports.client = core.protocol.extend4000 validator.ValidatedModel,
             timeout = @get('timeout')
 
         @parent.send { type: 'query', id: id = helpers.uuid(10), payload: msg }
-        unsubscribe = @subscribe { type: 'reply', id: id }, (msg) ->
+        @log 'querying', id, msg
+        
+        unsubscribe = @subscribe { type: 'reply', id: id }, (msg) =>
             if msg.end then unsubscribe()
             callback msg.payload, msg.end
             
@@ -44,14 +51,19 @@ client = exports.client = core.protocol.extend4000 validator.ValidatedModel,
         return new query parent: @, id: id, unsubscribe: unsubscribe
 
 reply = core.core.extend4000
+    
     initialize: ->
-        @unsubscribe = @parent.parent.subscribe type: 'queryCancel', id: @get('id'), => @cancel()
+        @set name: @get 'id'
+        @unsubscribe = @parent.parent.subscribe type: 'queryCancel', id: @get('id'), =>
+            @log 'got query cancel request'
+            @cancel()
         @parent.on 'end', => @cancel()
         
     write: (msg) ->
 #        if @ended then throw "this reply has ended"
-        if @ended then return
+        if @ended then return false
         @parent.send msg, @id, false
+        return true
         
     end: (msg) ->
         if not @ended then @ended = true else throw "this reply has ended"
@@ -74,12 +86,15 @@ server = exports.server = core.protocol.extend4000
 
     initialize: ->
         @when 'parent', (parent) =>
-            parent.subscribe { type: 'query', payload: true }, (msg) => @event msg.payload, msg.id
+            parent.subscribe { type: 'query', payload: true }, (msg) =>
+                @log 'got query',msg.id,msg.payload
+                @event msg.payload, msg.id
             parent.on 'end', => @end()
 
     send: (payload,id,end=false) ->
         msg = { type: 'reply', payload: payload, id: id }
-        if end then msg.end = true
+        if end then msg.end = true; @log 'ending query',id,payload
+        else @log 'replying to query',id,payload
         @parent.send msg
 
     subscribe: (pattern=true ,callback) ->

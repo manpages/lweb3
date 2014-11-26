@@ -23,6 +23,7 @@ core = exports.core = subscriptionMan.fancy.extend4000
             
     log: (args...) ->
         if @verbose then console.log.apply console, [].concat( '::', new Date().getTime() - startTime, @name(), args)
+            
 
 channel = exports.channel = core.extend4000
     initialize: ->
@@ -36,7 +37,6 @@ channel = exports.channel = core.extend4000
         throw "what is this?"
         
     addProtocol: (protocol) ->
-        console.log protocol.name()
         if not name = protocol.name() then throw "what is this?"
         if @hasProtocol protocol then throw "this protocol (#{protocol.name()}) is already active on channel"        
         _.map protocol.requires, (dependancyProtocol) =>

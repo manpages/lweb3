@@ -27,8 +27,8 @@ gimmeEnv = (callback) ->
     # I dont know why but I need to cycle ports, maybe http doesn't fully close, I don't know man.
     http.listen ++port 
 
-    lwebs = new Server.webSocketServer http: http, verbose: true
-    lwebc = new Client.webSocketClient host: 'http://localhost:' + port, verbose: true
+    lwebs = new Server.webSocketServer http: http, verbose: false
+    lwebc = new Client.webSocketClient host: 'http://localhost:' + port, verbose: false
 
     
     lwebs.on 'connect', (s) -> callback lwebs, s, lwebc, (test) ->
@@ -44,7 +44,6 @@ exports.init = (test) ->
 exports.ClientSend = (test) ->
     gimmeEnv (lwebs, s, c, done) ->
         s.subscribe { test: true}, (msg) ->
-            console.log 'done test!'
             done test            
         c.send { test: 1 }
 
@@ -59,8 +58,8 @@ exports.QueryProtocol = (test) ->
     query = require('./protocols/query')
     
     gimmeEnv (lwebs, s, c,done) ->
-        s.addProtocol new query.server()
-        c.addProtocol new query.client()
+        s.addProtocol new query.server( verbose: true )
+        c.addProtocol new query.client( verbose: true )
 
         s.queryServer.subscribe { test: Number }, (msg, reply) ->
             reply.write reply: msg.test + 3
@@ -79,8 +78,8 @@ exports.QueryProtocolCancel = (test) ->
     query = require('./protocols/query')
     
     gimmeEnv (lwebs, s, c,done) ->
-        s.addProtocol new query.server()
-        c.addProtocol new query.client()
+        s.addProtocol new query.server( verbose: true )
+        c.addProtocol new query.client( verbose: true )
 
         s.queryServer.subscribe { test: Number }, (msg, reply) ->
             reply.write reply: msg.test + 3
@@ -102,8 +101,10 @@ exports.ChannelProtocol = (test) ->
     channel = require('./protocols/channel')
 
     gimmeEnv (lwebs, s, c, done) ->
+        
         s.addProtocol new channel.server( verbose: true )
         c.addProtocol new channel.client( verbose: true )
+
 
         c.join 'testchannel', (err,channel) ->
             if err then return test.fail()
@@ -143,4 +144,4 @@ class Test
             
 
 
-#exports.ChannelProtocol new Test()
+#exports.CollectionProtocol new Test()

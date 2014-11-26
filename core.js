@@ -71,7 +71,6 @@
     },
     addProtocol: function(protocol) {
       var name;
-      console.log(protocol.name());
       if (!(name = protocol.name())) {
         throw "what is this?";
       }
