@@ -24,6 +24,9 @@
     validator: {
       http: 'Instance'
     },
+    defaults: {
+      name: 'webSocketServer'
+    },
     initialize: function() {
       var channelClass;
       this.http = this.get('http');
@@ -33,15 +36,17 @@
       });
       return this.socketIo.on('connection', (function(_this) {
         return function(socketIoClient) {
+          _this.log('connection received', socketIoClient.id);
           return _this.trigger('connect', new channelClass({
+            parent: _this,
             socketIo: socketIoClient
           }));
         };
       })(this));
     },
-    stop: function(callback) {
+    end: function() {
       this.http.close();
-      return callback();
+      return core.core.prototype.end.call(this);
     }
   });
 

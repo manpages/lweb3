@@ -14,16 +14,20 @@ _.extend exports, require('../websocket')
 webSocketServer = exports.webSocketServer = core.server.extend4000 validator.ValidatedModel,
     validator:
         http: 'Instance'
-        
+
+    defaults:
+        name: 'webSocketServer'
+                                
     initialize: ->
         @http = @get 'http'
-        channelClass = exports.webSocketChannel.extend4000 @get('channelClass') or {}
+        channelClass = exports.webSocketChannel.extend4000 (@get('channelClass') or {})
         @socketIo = io.listen @http, log: false
 
         @socketIo.on 'connection', (socketIoClient) =>
-            @trigger 'connect', new channelClass socketIo: socketIoClient
-            
-    stop: (callback) ->
+            @log 'connection received', socketIoClient.id
+            @trigger 'connect', new channelClass parent: @, socketIo: socketIoClient
+                                    
+    end: ->
         @http.close()
-        callback()
+        core.core::end.call @
         

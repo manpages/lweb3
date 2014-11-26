@@ -19,19 +19,39 @@
   core = require('../core');
 
   webSocketChannel = exports.webSocketChannel = core.channel.extend4000({
+    defaults: {
+      name: 'webSocket'
+    },
     initialize: function() {
-      return this.when('socketIo', (function(_this) {
+      this.when('socketIo', (function(_this) {
         return function(socketIo) {
+          var id;
           _this.socketIo = socketIo;
-          return _this.socketIo.on('msg', function(msg) {
-            console.log("<", msg);
+          if (id = _this.socketIo.id) {
+            _this.set({
+              name: _this.socketIo.id
+            });
+          }
+          _this.socketIo.on('msg', function(msg) {
+            _this.log("<", msg);
             return _this.event(msg);
+          });
+          return _this.socketIo.on('disconnect', function() {
+            _this.log("Lost Connection");
+            return _this.end();
+          });
+        };
+      })(this));
+      return this.when('parent', (function(_this) {
+        return function(parent) {
+          return parent.on('end', function() {
+            return _this.end();
           });
         };
       })(this));
     },
     send: function(msg) {
-      console.log(">", msg);
+      this.log(">", msg);
       return this.socketIo.emit('msg', msg);
     },
     receive: function(pattern, callback) {

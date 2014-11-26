@@ -10,14 +10,24 @@ io = require 'socket.io'
 core = require '../core'
 
 webSocketChannel = exports.webSocketChannel = core.channel.extend4000
+    defaults:
+        name: 'webSocket'
+        
     initialize: ->
         @when 'socketIo', (@socketIo) =>
+            if id = @socketIo.id then @set name: @socketIo.id
             @socketIo.on 'msg', (msg) =>
-                console.log "<",msg
+                @log "<", msg
                 @event msg
-        
+            @socketIo.on 'disconnect', =>
+                @log "Lost Connection"
+                @end()
+            
+        @when 'parent', (parent) =>
+            parent.on 'end', => @end()
+            
     send: (msg) ->
-        console.log ">",msg
+        @log ">", msg
         @socketIo.emit 'msg', msg
         
     receive: (pattern, callback) ->

@@ -19,7 +19,7 @@
   query = core.core.extend4000({
     end: function() {
       this.get('unsubscribe')();
-      return this.parent.end(this.id);
+      return this.parent.endQuery(this.id);
     }
   });
 
@@ -27,7 +27,9 @@
     validator: {
       timeout: v().Default(3000).Number()
     },
-    name: 'queryClient',
+    defaults: {
+      name: 'queryClient'
+    },
     functions: function() {
       return {
         query: _.bind(this.send, this)
@@ -36,16 +38,19 @@
     initialize: function() {
       return this.when('parent', (function(_this) {
         return function(parent) {
-          return parent.subscribe({
+          parent.subscribe({
             type: 'reply',
             id: String
           }, function(msg) {
             return _this.event(msg);
           });
+          return parent.on('end', function() {
+            return _this.end();
+          });
         };
       })(this));
     },
-    end: function(id) {
+    endQuery: function(id) {
       return this.parent.send({
         type: 'queryCancel',
         id: id
@@ -81,7 +86,7 @@
 
   reply = core.core.extend4000({
     initialize: function() {
-      return this.unsubscribe = this.parent.parent.subscribe({
+      this.unsubscribe = this.parent.parent.subscribe({
         type: 'queryCancel',
         id: this.get('id')
       }, (function(_this) {
@@ -89,10 +94,15 @@
           return _this.cancel();
         };
       })(this));
+      return this.parent.on('end', (function(_this) {
+        return function() {
+          return _this.cancel();
+        };
+      })(this));
     },
     write: function(msg) {
       if (this.ended) {
-        throw "this reply has ended";
+        return;
       }
       return this.parent.send(msg, this.id, false);
     },
@@ -103,17 +113,21 @@
         throw "this reply has ended";
       }
       this.unsubscribe();
-      return this.parent.send(msg, this.id, true);
+      this.parent.send(msg, this.id, true);
+      return this.trigger('end');
     },
     cancel: function() {
       this.ended = true;
+      this.unsubscribe();
       this.trigger('cancel');
-      return this.unsubscribe();
+      return this.trigger('end');
     }
   });
 
   server = exports.server = core.protocol.extend4000({
-    name: 'queryServer',
+    defaults: {
+      name: 'queryServer'
+    },
     functions: function() {
       return {
         onQuery: _.bind(this.subscribe, this)
@@ -122,11 +136,14 @@
     initialize: function() {
       return this.when('parent', (function(_this) {
         return function(parent) {
-          return parent.subscribe({
+          parent.subscribe({
             type: 'query',
             payload: true
           }, function(msg) {
             return _this.event(msg.payload, msg.id);
+          });
+          return parent.on('end', function() {
+            return _this.end();
           });
         };
       })(this));

@@ -27,26 +27,32 @@ gimmeEnv = (callback) ->
     # I dont know why but I need to cycle ports, maybe http doesn't fully close, I don't know man.
     http.listen ++port 
 
-    lwebs = new Server.webSocketServer http: http
-    lwebc = new Client.webSocketClient host: 'http://localhost:' + port
+    lwebs = new Server.webSocketServer http: http, verbose: true
+    lwebc = new Client.webSocketClient host: 'http://localhost:' + port, verbose: true
+
     
     lwebs.on 'connect', (s) -> callback lwebs, s, lwebc, (test) ->
-        lwebs.stop -> lwebc.stop -> test.done()
+        lwebc.end()
+        helpers.wait 30, -> 
+            lwebs.end()
+            helpers.wait 10, -> test.done()
 
 exports.init = (test) ->
-    gimmeEnv ->
-        test.done()
+    gimmeEnv (lwebs, s, c, done) ->
+        done test
         
 exports.ClientSend = (test) ->
-    gimmeEnv (lwebs, s, c,done) ->
+    gimmeEnv (lwebs, s, c, done) ->
         s.subscribe { test: true}, (msg) ->
+            console.log 'done test!'
             done test            
         c.send { test: 1 }
 
 exports.ServerSend = (test) ->
-    gimmeEnv (lwebs, s, c,done) ->
+    gimmeEnv (lwebs, s, c, done) ->
         c.subscribe { test: true}, (msg) ->
-            done test            
+            done test
+
         s.send { test: 1 }
 
 exports.QueryProtocol = (test) ->
@@ -95,7 +101,7 @@ exports.QueryProtocolCancel = (test) ->
 exports.ChannelProtocol = (test) ->
     channel = require('./protocols/channel')
 
-    gimmeEnv (lwebs, s, c,done) ->        
+    gimmeEnv (lwebs, s, c, done) ->
         s.addProtocol new channel.server( verbose: true )
         c.addProtocol new channel.client( verbose: true )
 
@@ -103,15 +109,15 @@ exports.ChannelProtocol = (test) ->
             if err then return test.fail()
 
             test.equal channel, c.channel('testchannel')
-            console.log 'joined!'
+
             channel.subscribe { test: 1 }, (msg) ->
                 test.equal msg.bla, 3, "bla isn't 3. BLA ISN'T 3 MAN!!!"
-
                 channel.part()
-                s.channels.testchannel.broadcast { test: 2, bla: 4 }
-                helpers.wait 100, ->
-                    done test
-            
+                helpers.wait 50, -> 
+                    s.channels.testchannel.broadcast { test: 2, bla: 4 }
+                    helpers.wait 50, ->
+                        done test
+
             s.channelServer.channel('testchannel').broadcast { test: 1, bla: 3 }
 
 
@@ -126,3 +132,15 @@ exports.CollectionProtocol = (test) ->
 
         c.collection.bla.findModels {},{}, (err,model) ->
             console.log model
+
+
+class Test
+    done: ->
+        console.log 'test done'
+#        process.exit(0)
+    equal: (x,y) ->
+        if x isnt y then throw "not equal"
+            
+
+
+#exports.ChannelProtocol new Test()

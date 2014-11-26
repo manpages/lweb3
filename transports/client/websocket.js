@@ -19,14 +19,16 @@
   _.extend(exports, require('../websocket'));
 
   webSocketClient = exports.webSocketClient = exports.webSocketChannel.extend4000({
+    defaults: {
+      name: 'webSocketClient'
+    },
     initialize: function() {
       return this.set({
         socketIo: this.socketIo = io.connect(this.get('host') || "http://" + (typeof window === "function" ? window(typeof location === "function" ? location(host) : void 0) : void 0))
       });
     },
-    stop: function(cb) {
-      this.socketIo.disconnect();
-      return cb();
+    end: function() {
+      return this.socketIo.disconnect();
     }
   });
 
