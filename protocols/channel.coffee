@@ -43,7 +43,9 @@ clientChannel = core.core.extend4000
 client = exports.client = channelInterface.extend4000
     defaults:
         name: 'channelClient'
-        
+
+    channelClass: clientChannel
+                        
     requires: [ query.client ]
 
     functions: ->

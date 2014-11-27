@@ -74,6 +74,7 @@
     defaults: {
       name: 'channelClient'
     },
+    channelClass: clientChannel,
     requires: [query.client],
     functions: function() {
       return {

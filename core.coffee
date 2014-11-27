@@ -72,12 +72,12 @@ motherShip = exports.motherShip = (name) ->
     model.initialize = ->
         @[name + "s"] = {}
 
-    model[name] = (instanceName) ->
+    model[name] = (instanceName, attributes={}) ->
         if instance = @[name + "s"][instanceName] then return instance
 
         instanceClass = @get(name + "Class")
         if not instanceClass then throw "I don't have " + name + "Class defined"
-        instance = @[name + "s"][instanceName] = new instanceClass { parent: @, name: instanceName }
+        instance = @[name + "s"][instanceName] = new instanceClass _.extend { parent: @, name: instanceName }, attributes
         instance.once 'end', => delete @[name + "s"][instanceName]
         @trigger 'new' + helpers.capitalize(name), instance
         return instance

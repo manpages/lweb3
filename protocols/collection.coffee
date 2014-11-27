@@ -15,8 +15,6 @@ collectionProtocol = core.protocol.extend4000 core.motherShip('collection'),
         collection: _.bind @collection, @
         collections: @collections
         
-
-
 queryToCallback = (callback) ->
     (msg,end) ->
         if not end then throw "this query is supposed to be translated to callback but I got multiple responses"
@@ -58,16 +56,17 @@ client = exports.client = collectionProtocol.extend4000
     
 serverCollection = exports.serverCollection = collectionInterface.extend4000
     initialize: ->
-        @name = @get 'name'
-
+        c = @get 'collection'
+        
+        @set name: name =  c.get('name')
+        
         @when 'parent', (parent) ->
-            parent.parent.onQuery { collection: @name }, @event
+            parent.parent.onQuery { collection: name }, @event
 
         callbackToRes = (res) -> (err,data) ->
             if err?.name then err = err.name
             res.end err: err, data: data
             
-        c = @get 'collection'
         
         @subscribe { create: Object }, (msg, res, realm) ->
             c.createModel msg.create, realm, callbackToRes(res)
@@ -99,5 +98,7 @@ serverCollection = exports.serverCollection = collectionInterface.extend4000
 server = exports.server = collectionProtocol.extend4000
     defaults:
         name: 'collectionServer'
+        collectionClass: serverCollection
+        
     requires: [ channel.server ]
 

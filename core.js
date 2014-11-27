@@ -110,8 +110,11 @@
     model.initialize = function() {
       return this[name + "s"] = {};
     };
-    model[name] = function(instanceName) {
+    model[name] = function(instanceName, attributes) {
       var instance, instanceClass;
+      if (attributes == null) {
+        attributes = {};
+      }
       if (instance = this[name + "s"][instanceName]) {
         return instance;
       }
@@ -119,10 +122,10 @@
       if (!instanceClass) {
         throw "I don't have " + name + "Class defined";
       }
-      instance = this[name + "s"][instanceName] = new instanceClass({
+      instance = this[name + "s"][instanceName] = new instanceClass(_.extend({
         parent: this,
         name: instanceName
-      });
+      }, attributes));
       instance.once('end', (function(_this) {
         return function() {
           return delete _this[name + "s"][instanceName];

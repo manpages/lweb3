@@ -5,7 +5,6 @@ helpers = require 'helpers'
 subscriptionMan = require('subscriptionman2')
 validator = require('validator2-extras'); v = validator.v
 
-io = require 'socket.io'
 
 core = require '../core'
 

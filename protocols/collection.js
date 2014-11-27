@@ -92,11 +92,14 @@
 
   serverCollection = exports.serverCollection = collectionInterface.extend4000({
     initialize: function() {
-      var c, callbackToRes;
-      this.name = this.get('name');
+      var c, callbackToRes, name;
+      c = this.get('collection');
+      this.set({
+        name: name = c.get('name')
+      });
       this.when('parent', function(parent) {
         return parent.parent.onQuery({
-          collection: this.name
+          collection: name
         }, this.event);
       });
       callbackToRes = function(res) {
@@ -110,7 +113,6 @@
           });
         };
       };
-      c = this.get('collection');
       this.subscribe({
         create: Object
       }, function(msg, res, realm) {
@@ -167,7 +169,8 @@
 
   server = exports.server = collectionProtocol.extend4000({
     defaults: {
-      name: 'collectionServer'
+      name: 'collectionServer',
+      collectionClass: serverCollection
     },
     requires: [channel.server]
   });
