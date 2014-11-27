@@ -215,12 +215,13 @@
   };
 
   exports.CollectionProtocol = function(test) {
-    var channel, collectionProtocol, collections, mongodb, query;
+    var channel, collectionProtocol, collectionsC, collectionsS, mongodb, query;
     mongodb = require('mongodb');
     channel = require('./protocols/channel');
     query = require('./protocols/query');
     collectionProtocol = require('./protocols/collection');
-    collections = require('collections/serverside');
+    collectionsS = require('collections/serverside');
+    collectionsC = require('collections');
     return gimmeEnv(function(lwebs, s, c, done) {
       return helpers.wait(100, function() {
         var db;
@@ -246,7 +247,7 @@
           }));
           s.addProtocol(new collectionProtocol.server({
             verbose: true,
-            collectionClass: collectionProtocol.serverCollection.extend4000(collections.MongoCollection, {
+            collectionClass: collectionProtocol.serverCollection.extend4000(collectionsS.MongoCollection, {
               defaults: {
                 db: db
               }
@@ -254,13 +255,14 @@
           }));
           c.addProtocol(new collectionProtocol.client({
             verbose: true,
-            collectionClass: collectionProtocol.clientCollection.extend4000(collections.ModelMixin, collections.ReferenceMixin, collections.RequestIdMixin, collections.CachingMixin)
+            collectionClass: collectionProtocol.clientCollection.extend4000(collectionsC.ModelMixin, {})
           }));
           serverC = s.collection('bla');
+          console.log(serverC.defineModel);
           serverM = serverC.defineModel('bla', {});
           clientC = c.collection('bla');
           clientM = clientC.defineModel('bla', {});
-          x = new serverM({
+          x = new clientM({
             test: 'data'
           });
           return x.flush();

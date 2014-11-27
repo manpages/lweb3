@@ -133,7 +133,8 @@ exports.CollectionProtocol = (test) ->
     channel = require('./protocols/channel')
     query = require('./protocols/query')
     collectionProtocol = require './protocols/collection'
-    collections = require 'collections/serverside'
+    collectionsS = require 'collections/serverside'
+    collectionsC = require 'collections'
     gimmeEnv (lwebs,s,c,done) ->
         helpers.wait 100, -> 
             db = new mongodb.Db 'testdb', new mongodb.Server('localhost', 27017), safe: true
@@ -143,21 +144,27 @@ exports.CollectionProtocol = (test) ->
                 c.addProtocol new query.client( verbose: true )
                 s.addProtocol new channel.server( verbose: true )
                 c.addProtocol new channel.client( verbose: true )
+
                 s.addProtocol new collectionProtocol.server
                     verbose: true,
-                    collectionClass: collectionProtocol.serverCollection.extend4000 collections.MongoCollection, { defaults: { db: db } }
-                        
-                c.addProtocol new collectionProtocol.client verbose: true, collectionClass:
-                    collectionProtocol.clientCollection.extend4000 collections.ModelMixin, collections.ReferenceMixin, collections.RequestIdMixin, collections.CachingMixin
+                    collectionClass: collectionProtocol.serverCollection.extend4000 collectionsS.MongoCollection, { defaults: { db: db } }
 
+
+                c.addProtocol new collectionProtocol.client
+                    verbose: true,
+                    collectionClass: collectionProtocol.clientCollection.extend4000 collectionsC.ModelMixin, {}
+
+                
                 serverC = s.collection('bla')
+                console.log serverC.defineModel
                 serverM = serverC.defineModel 'bla', {}
                 
                 clientC = c.collection('bla')
                 clientM = clientC.defineModel 'bla', {}
                 
-                x = new serverM({test:'data' })
+                x = new clientM({test:'data' })
                 x.flush()
+                
 
 class Test
     done: ->

@@ -39,17 +39,14 @@
   };
 
   clientCollection = exports.clientCollection = collectionInterface.extend4000({
-    initialize: function() {
-      return this.name = this.get('name');
-    },
     query: function(msg, callback) {
-      msg.collection = this.name;
-      return this.parent.query(msg, callback);
+      msg.collection = this.get('name');
+      return this.parent.parent.query(msg, callback);
     },
     create: function(data, callback) {
       this.log('create', data);
       return this.query({
-        create: pattern
+        create: data
       }, queryToCallback(callback));
     },
     remote: function(pattern, callback) {

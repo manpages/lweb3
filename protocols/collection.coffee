@@ -24,16 +24,14 @@ queryToCallback = (callback) ->
         
 
 clientCollection = exports.clientCollection = collectionInterface.extend4000
-    initialize: ->
-        @name = @get 'name'
 
     query: (msg,callback) ->
-        msg.collection = @name
-        @parent.query msg,callback
+        msg.collection = @get 'name'
+        @parent.parent.query msg, callback
 
     create: (data,callback) ->
         @log 'create',data
-        @query { create: pattern }, queryToCallback callback
+        @query { create: data }, queryToCallback callback
 
     remote: (pattern,callback) -> 
         @query { remove: pattern }, queryToCallback callback
