@@ -97,11 +97,18 @@
       this.set({
         name: name = c.get('name')
       });
-      this.when('parent', function(parent) {
-        return parent.parent.onQuery({
-          collection: name
-        }, this.event);
-      });
+      this.when('parent', (function(_this) {
+        return function(parent) {
+          return parent.parent.onQuery({
+            collection: name
+          }, function(msg, res, realm) {
+            if (realm == null) {
+              realm = {};
+            }
+            return _this.event(msg, res, realm);
+          });
+        };
+      })(this));
       callbackToRes = function(res) {
         return function(err, data) {
           if (err != null ? err.name : void 0) {
@@ -159,7 +166,7 @@
           }), (function(err, data) {
             return endCb();
           }));
-          return bucket.done(err, data)(function() {
+          return bucket.done(function(err, data) {
             return res.end();
           });
         };

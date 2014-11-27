@@ -72,9 +72,9 @@
 
   client = exports.client = channelInterface.extend4000({
     defaults: {
-      name: 'channelClient'
+      name: 'channelClient',
+      channelClass: clientChannel
     },
-    channelClass: clientChannel,
     requires: [query.client],
     functions: function() {
       return {
@@ -116,7 +116,8 @@
 
   server = exports.server = channelInterface.extend4000({
     defaults: {
-      name: 'channelServer'
+      name: 'channelServer',
+      channelClass: serverChannel
     },
     requires: [query.server],
     functions: function() {
@@ -125,7 +126,6 @@
         channels: this.channels
       };
     },
-    channelClass: serverChannel,
     initialize: function() {
       return this.when('parent', (function(_this) {
         return function(parent) {

@@ -185,7 +185,7 @@
       if (pattern == null) {
         pattern = true;
       }
-      console.log('subscribing on', pattern);
+      console.log('subscribing on', pattern, callback);
       return subscriptionMan.fancy.prototype.subscribe.call(this, pattern, (function(_this) {
         return function(payload, id) {
           return callback(payload, new reply({

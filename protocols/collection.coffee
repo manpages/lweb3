@@ -60,14 +60,14 @@ serverCollection = exports.serverCollection = collectionInterface.extend4000
         
         @set name: name =  c.get('name')
         
-        @when 'parent', (parent) ->
-            parent.parent.onQuery { collection: name }, @event
+        @when 'parent', (parent) =>
+            parent.parent.onQuery { collection: name }, (msg, res, realm={}) =>
+                @event msg, res, realm
 
         callbackToRes = (res) -> (err,data) ->
             if err?.name then err = err.name
             res.end err: err, data: data
             
-        
         @subscribe { create: Object }, (msg, res, realm) ->
             c.createModel msg.create, realm, callbackToRes(res)
             
@@ -93,7 +93,7 @@ serverCollection = exports.serverCollection = collectionInterface.extend4000
                     if not err then res.write data
                     bucketCallback()), ((err,data) -> endCb())
                     
-            bucket.done(err,data) -> res.end()    
+            bucket.done (err,data) -> res.end()    
 
 server = exports.server = collectionProtocol.extend4000
     defaults:

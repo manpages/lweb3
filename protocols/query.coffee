@@ -97,7 +97,7 @@ server = exports.server = core.protocol.extend4000
         @parent.send msg
 
     subscribe: (pattern=true ,callback) ->
-        console.log 'subscribing on', pattern
+        console.log 'subscribing on', pattern,callback
         subscriptionMan.fancy::subscribe.call @, pattern, (payload, id) =>
             callback payload, new reply id: id, parent: @
 

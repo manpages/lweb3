@@ -43,8 +43,7 @@ clientChannel = core.core.extend4000
 client = exports.client = channelInterface.extend4000
     defaults:
         name: 'channelClient'
-
-    channelClass: clientChannel
+        channelClass: clientChannel
                         
     requires: [ query.client ]
 
@@ -77,6 +76,7 @@ serverChannel = core.core.extend4000
 server = exports.server = channelInterface.extend4000
     defaults:
         name: 'channelServer'
+        channelClass: serverChannel
         
     requires: [ query.server ]
 
@@ -84,7 +84,6 @@ server = exports.server = channelInterface.extend4000
         channel: _.bind @channel, @
         channels: @channels
 
-    channelClass: serverChannel
 
     initialize: ->
         @when 'parent', (parent) =>
@@ -93,3 +92,4 @@ server = exports.server = channelInterface.extend4000
                 @channel(msg.joinChannel).join reply, msg.pattern
 
             parent.on 'end', => @end()
+

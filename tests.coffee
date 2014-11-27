@@ -174,4 +174,6 @@ class Test
         if x isnt y then throw "not equal"            
 
 
-exports.CollectionProtocol new Test()
+
+#exports.QueryProtocol new Test()
+exports.ChannelProtocol new Test()

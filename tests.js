@@ -288,6 +288,6 @@
 
   })();
 
-  exports.CollectionProtocol(new Test());
+  exports.ChannelProtocol(new Test());
 
 }).call(this);
