@@ -46,8 +46,11 @@
       })(this));
       return this.when('parent', (function(_this) {
         return function(parent) {
-          return parent.on('end', function() {
+          parent.on('end', function() {
             return _this.end();
+          });
+          return _this.socketIo.on('msg', function(msg) {
+            return parent.event(msg, realm);
           });
         };
       })(this));

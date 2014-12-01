@@ -25,7 +25,9 @@ webSocketChannel = exports.webSocketChannel = core.channel.extend4000
             
         @when 'parent', (parent) =>
             parent.on 'end', => @end()
-            
+            @socketIo.on 'msg', (msg) =>
+                parent.event msg, realm
+
     send: (msg) ->
         @log ">", msg
         @socketIo.emit 'msg', msg

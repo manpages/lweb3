@@ -30,17 +30,28 @@
     initialize: function() {
       var channelClass;
       this.http = this.get('http');
+      this.clients = {};
       channelClass = exports.webSocketChannel.extend4000(this.get('channelClass') || {});
       this.socketIo = io.listen(this.http, {
         log: false
       });
-      return this.socketIo.on('connection', (function(_this) {
+      this.socketIo.on('connection', (function(_this) {
         return function(socketIoClient) {
+          var channel, id;
           _this.log('connection received', socketIoClient.id);
-          return _this.trigger('connect', new channelClass({
+          channel = new channelClass({
             parent: _this,
-            socketIo: socketIoClient
-          }));
+            socketIo: socketIoClient,
+            id: id = socketIoClient.id
+          });
+          _this.clients[id] = channel;
+          return _this.trigger('connect', channel);
+        };
+      })(this));
+      return this.socketIo.on('disconnect', (function(_this) {
+        return function(socketIoClient) {
+          delete _this.clients[socketioClient.id];
+          return _this.trigger('disconnect', channel);
         };
       })(this));
     },

@@ -127,7 +127,29 @@ exports.ChannelProtocol = (test) ->
             s.channelServer.channel('testchannel').broadcast { test: 1, bla: 3 }
 
 
+exports.queryServerServer = (test) ->
+    gimmeEnv (lwebs, s, c, done) ->
+        query = require('./protocols/query')
+        s.verbose = true
+        c.verbose = true
+
+        lwebs.addProtocol new query.serverServer verbose: true
+
+        lwebs.onQuery bla: Number, (msg,reply,realm) ->
+            console.log "SERVERQUERY", msg
+            reply.end( bla: 666 )
+            
+        c.addProtocol new query.client verbose: true
+        
+        c.query bla: 3, (reply,end) ->
+            test.equal end, true
+            test.deepEqual reply, { bla: 666 }
+            done test
+
+            
+
 exports.CollectionProtocol = (test) ->
+    return test.done()
     mongodb = require 'mongodb'
     channel = require('./protocols/channel')
     query = require('./protocols/query')
@@ -171,8 +193,10 @@ class Test
 #        process.exit(0)
     equal: (x,y) ->
         if x isnt y then throw "not equal"            
-
+    deepEqual: -> true
+    ok: -> true
 
 
 #exports.QueryProtocol new Test()
-exports.ChannelProtocol new Test()
+#exports.queryServerServer new Test()
+#exports.CollectionProtocol new Test()

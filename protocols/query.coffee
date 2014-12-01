@@ -77,18 +77,49 @@ reply = core.core.extend4000
         @trigger 'end'
 
 
+serverServer = exports.serverServer = core.protocol.extend4000
+    defaults:
+        name: 'queryServerServer'
+        
+    functions: ->
+        onQuery: _.bind @subscribe, @
+
+    subscribe: (pattern,callback) ->
+        console.log 'serverserver subscribe', pattern
+        subscriptionMan.fancy::subscribe.call @, pattern, (payload, id, realm) =>
+            callback payload, new reply(id: id, parent: realm.client.queryServer), realm
+
+    initialize: ->
+        @when 'parent', (parent) =>
+            parent.on 'connect', (client) =>
+                console.log client.id
+                client.addProtocol new server verbose: @verbose, core: @
+                
+            _.map parent.clients, (client,id) =>
+                console.log id
+                client.addProtocol new server verbose: @verbose, core: @
+
+                                                           
+    channel: (channel) ->
+        channel.addProtocol new server verbose: @get 'verbose'
+
+
 server = exports.server = core.protocol.extend4000
     defaults:
         name: 'queryServer'
     
     functions: ->
         onQuery: _.bind @subscribe, @
-                
+
     initialize: ->
+        @when 'core', (core) => @core = core
+            
         @when 'parent', (parent) =>
             parent.subscribe { type: 'query', payload: true }, (msg, realm) =>
                 @log 'got query',msg.id,msg.payload
                 @event msg.payload, msg.id, realm
+                @core?.event msg.payload, msg.id, realm
+                
             parent.on 'end', => @end()
 
     send: (payload,id,end=false) ->
@@ -97,7 +128,9 @@ server = exports.server = core.protocol.extend4000
         else @log 'replying to query',id,payload
         @parent.send msg
 
-    subscribe: (pattern=true ,callback) ->
+    subscribe: (pattern=true, callback) ->
         subscriptionMan.fancy::subscribe.call @, pattern, (payload, id, realm) =>
             callback payload, new reply(id: id, parent: @), realm
+
+
 

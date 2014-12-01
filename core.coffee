@@ -27,12 +27,10 @@ core = exports.core = subscriptionMan.fancy.extend4000
         if @verbose then console.log.apply console, [].concat( '::', new Date().getTime() - startTime, @name(), args)
 
 
-channel = exports.channel = core.extend4000
+protocolHost = exports.protocolHost = core.extend4000
     initialize: ->
         @protocols = {}
         
-    send: (msg) -> throw "I'm a default channel, cant send msg #{msg}"
-
     hasProtocol: (protocol) ->
         if typeof protocol is 'function' then return Boolean @[protocol::defaults.name]
         if typeof protocol is 'object' then return Boolean @[protocol.name()]
@@ -48,13 +46,17 @@ channel = exports.channel = core.extend4000
         protocol.set parent: @
         
         if protocol.functions then _.extend @, protocol.functions()
-        
+
+channel = exports.channel = protocolHost.extend4000
+    send: (msg) -> throw 'not implemented'
+    
+                        
 protocol = exports.protocol = core.extend4000
     requires: []
 
-# has events like 'connect' and 'disconnect', provides client objects
-server = exports.server = core.extend4000
-    stop: -> true
+# has events like 'connect' and 'disconnect', provides channel objects
+# has clients dictionary mapping ids to clients
+server = exports.server = protocolHost.extend4000 {}
 
 # Just a common pattern,
 # this is for model that hosts bunch of models of a same type with names and references to parent
@@ -81,3 +83,4 @@ motherShip = exports.motherShip = (name) ->
         return instance
     
     Backbone.Model.extend4000 model
+

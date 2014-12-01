@@ -214,8 +214,41 @@
     });
   };
 
+  exports.queryServerServer = function(test) {
+    return gimmeEnv(function(lwebs, s, c, done) {
+      var query;
+      query = require('./protocols/query');
+      s.verbose = true;
+      c.verbose = true;
+      lwebs.addProtocol(new query.serverServer({
+        verbose: true
+      }));
+      lwebs.onQuery({
+        bla: Number
+      }, function(msg, reply, realm) {
+        console.log("SERVERQUERY", msg);
+        return reply.end({
+          bla: 666
+        });
+      });
+      c.addProtocol(new query.client({
+        verbose: true
+      }));
+      return c.query({
+        bla: 3
+      }, function(reply, end) {
+        test.equal(end, true);
+        test.deepEqual(reply, {
+          bla: 666
+        });
+        return done(test);
+      });
+    });
+  };
+
   exports.CollectionProtocol = function(test) {
     var channel, collectionProtocol, collectionsC, collectionsS, mongodb, query;
+    return test.done();
     mongodb = require('mongodb');
     channel = require('./protocols/channel');
     query = require('./protocols/query');
@@ -284,10 +317,16 @@
       }
     };
 
+    Test.prototype.deepEqual = function() {
+      return true;
+    };
+
+    Test.prototype.ok = function() {
+      return true;
+    };
+
     return Test;
 
   })();
-
-  exports.ChannelProtocol(new Test());
 
 }).call(this);
