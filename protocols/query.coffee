@@ -98,7 +98,6 @@ serverServer = exports.serverServer = core.protocol.extend4000
             _.map parent.clients, (client,id) =>
                 console.log id
                 client.addProtocol new server verbose: @verbose, core: @
-
                                                            
     channel: (channel) ->
         channel.addProtocol new server verbose: @get 'verbose'

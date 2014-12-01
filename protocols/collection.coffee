@@ -7,6 +7,7 @@ validator = require('validator2-extras'); v = validator.v
 
 core = require '../core'
 channel = require './channel'
+query = require './query'
 
 collectionInterface = core.core.extend4000 {}
 
@@ -66,7 +67,8 @@ serverCollection = exports.serverCollection = collectionInterface.extend4000
         @when 'parent', (parent) =>
             parent.parent.onQuery { collection: name }, (msg, res, realm={}) =>
                 @event msg, res, realm
-
+                @core?.event msg.payload, msg.id, realm
+                
         callbackToRes = (res) -> (err,data) ->
             if err?.name then err = err.name
             res.end err: err, data: data
@@ -105,3 +107,18 @@ server = exports.server = collectionProtocol.extend4000
         
     requires: [ channel.server ]
 
+
+serverServer = exports.serverServer = collectionProtocol.extend4000
+    defaults:
+        name: 'collectionServerServer'
+        collectionClass: serverCollection
+        
+    requires: [ query.serverServer ]
+
+    initialize: ->
+        @when 'parent', (parent) =>
+            parent.on 'connect', (client) =>
+                client.addProtocol new server verbose: @verbose, core: @
+                
+            _.map parent.clients, (client,id) =>
+                client.addProtocol new server verbose: @verbose, core: @
