@@ -25,7 +25,7 @@ core = exports.core = subscriptionMan.fancy.extend4000
             
     log: (args...) ->
         if @verbose then console.log.apply console, [].concat( '::', new Date().getTime() - startTime, @name(), args)
-            
+
 
 channel = exports.channel = core.extend4000
     initialize: ->
@@ -56,8 +56,6 @@ protocol = exports.protocol = core.extend4000
 server = exports.server = core.extend4000
     stop: -> true
 
-
-
 # Just a common pattern,
 # this is for model that hosts bunch of models of a same type with names and references to parent
 # it automatically instantiates new ones when they are mentioned
@@ -65,7 +63,7 @@ server = exports.server = core.extend4000
 # used for channelserver.. for example channelServer.channel('bla') automatically instantiates channelClass with name bla
 #
 # also used for collection server or client
-# 
+ 
 motherShip = exports.motherShip = (name) ->
     model = {}
 

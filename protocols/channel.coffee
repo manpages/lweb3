@@ -8,16 +8,12 @@ validator = require('validator2-extras'); v = validator.v
 core = require '../core'
 query = require './query'
 
-
-
 channelInterface = core.protocol.extend4000 core.motherShip('channel'),
     channelsubscribe: (channelname, pattern, callback) ->
         channel = @channel(channelname)
         if not callback and pattern.constructor is Function then callback = pattern; pattern = true
         channel.subscribe pattern, callback
-
     broadcast: (name,message) -> @channel(name).broadcast message
-
 
 
 clientChannel = core.core.extend4000

@@ -21,7 +21,7 @@ client = exports.client = core.protocol.extend4000 validator.ValidatedModel,
 
     functions: ->
         query: _.bind @send, @
-        
+                        
     initialize: ->
         @when 'parent', (parent) =>
             parent.subscribe { type: 'reply', id: String }, (msg) =>
@@ -82,7 +82,7 @@ server = exports.server = core.protocol.extend4000
     
     functions: ->
         onQuery: _.bind @subscribe, @
-
+        
     initialize: ->
         @when 'parent', (parent) =>
             parent.subscribe { type: 'query', payload: true }, (msg) =>
@@ -97,7 +97,6 @@ server = exports.server = core.protocol.extend4000
         @parent.send msg
 
     subscribe: (pattern=true ,callback) ->
-        console.log 'subscribing on', pattern,callback
         subscriptionMan.fancy::subscribe.call @, pattern, (payload, id) =>
-            callback payload, new reply id: id, parent: @
+            callback payload, new reply(id: id, parent: @), @parent
 

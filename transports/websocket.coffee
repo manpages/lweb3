@@ -5,7 +5,6 @@ helpers = require 'helpers'
 subscriptionMan = require('subscriptionman2')
 validator = require('validator2-extras'); v = validator.v
 
-
 core = require '../core'
 
 webSocketChannel = exports.webSocketChannel = core.channel.extend4000

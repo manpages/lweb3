@@ -65,6 +65,13 @@
         data: data
       }, queryToCallback(callback));
     },
+    fcall: function(name, args, pattern, callback) {
+      return this.query({
+        call: name,
+        args: args,
+        pattern: pattern
+      }, queryToCallback(callback));
+    },
     find: function(pattern, limits, callback, callbackDone) {
       var query;
       query = {
@@ -143,9 +150,10 @@
       });
       this.subscribe({
         call: String,
+        pattern: Object,
         args: v()["default"]([]).Array()
       }, function(msg, res, realm) {
-        return c.fcall(msg.call, msg.args, realm, callbackToRes(res));
+        return c.fcall(msg.call, msg.args, msg.pattern, realm, callbackToRes(res));
       });
       return this.subscribe({
         find: Object

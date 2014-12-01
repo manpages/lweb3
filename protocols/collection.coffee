@@ -40,6 +40,9 @@ clientCollection = exports.clientCollection = collectionInterface.extend4000
     update: (pattern,data,callback) ->
         @query { update: pattern, data: data }, queryToCallback callback
 
+    fcall: (name, args, pattern, callback) ->
+        @query { call: name, args: args, pattern: pattern }, queryToCallback callback
+
     find: (pattern,limits,callback,callbackDone) ->
         query = { find: pattern }
         if limits then query.limits = limits
@@ -47,7 +50,7 @@ clientCollection = exports.clientCollection = collectionInterface.extend4000
         @query query, (msg,end) ->
             if end then return callbackDone null, end
             callback null, msg
-               
+
 client = exports.client = collectionProtocol.extend4000
     defaults:
         name: 'collectionClient'
@@ -80,8 +83,8 @@ serverCollection = exports.serverCollection = collectionInterface.extend4000
         @subscribe { findOne: Object }, (msg, res, realm) ->
             c.findModel msg.findOne, realm, callbackToRes(res)
             
-        @subscribe { call: String, args: v().default([]).Array() }, (msg, res, realm) ->
-            c.fcall msg.call, msg.args, realm, callbackToRes(res)
+        @subscribe { call: String, pattern: Object, args: v().default([]).Array() }, (msg, res, realm) ->
+            c.fcall msg.call, msg.args, msg.pattern, realm, callbackToRes(res)
             
         @subscribe { find: Object }, (msg, res, realm) =>
             bucket = new helpers.parallelBucket()

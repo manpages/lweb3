@@ -185,13 +185,12 @@
       if (pattern == null) {
         pattern = true;
       }
-      console.log('subscribing on', pattern, callback);
       return subscriptionMan.fancy.prototype.subscribe.call(this, pattern, (function(_this) {
         return function(payload, id) {
           return callback(payload, new reply({
             id: id,
             parent: _this
-          }));
+          }), _this.parent);
         };
       })(this));
     }

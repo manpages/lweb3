@@ -28,13 +28,14 @@ gimmeEnv = (callback) ->
 
     lwebs = new Server.webSocketServer http: http, verbose: false
     lwebc = new Client.webSocketClient host: 'http://localhost:' + port, verbose: false
-
     
     lwebs.on 'connect', (s) -> callback lwebs, s, lwebc, (test) ->
         lwebc.end()
         helpers.wait 30, -> 
             lwebs.end()
             helpers.wait 10, -> test.done()
+
+
 
 exports.init = (test) ->
     gimmeEnv (lwebs, s, c, done) ->
@@ -46,8 +47,7 @@ exports.ClientSend = (test) ->
         c.verbose = true
         cnt = 0
         s.subscribe { test: true}, (msg) ->
-            done test
-                
+            done test                
         c.send { test: 1 }
 
 exports.ServerSend = (test) ->
@@ -56,7 +56,6 @@ exports.ServerSend = (test) ->
         c.verbose = true
         c.subscribe { test: true}, (msg) ->
             done test
-
         s.send { test: 1 }
 
 exports.QueryProtocol = (test) ->
@@ -100,7 +99,7 @@ exports.QueryProtocolCancel = (test) ->
                 test.ok false, "didnt cancel"
                 
             helpers.wait 200, -> test.done()
-        
+                        
 
 exports.ChannelProtocol = (test) ->
     channel = require('./protocols/channel')
