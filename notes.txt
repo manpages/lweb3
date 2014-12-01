@@ -14,7 +14,7 @@
    so, in order to get game data you do a query
    which gives you the current state and then streams the changes - no permissions here.
    how do you interact? I guess just sends! - permissions here
-
+   
 
 
   
