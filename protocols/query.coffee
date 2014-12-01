@@ -99,4 +99,3 @@ server = exports.server = core.protocol.extend4000
     subscribe: (pattern=true ,callback) ->
         subscriptionMan.fancy::subscribe.call @, pattern, (payload, id) =>
             callback payload, new reply(id: id, parent: @), @parent
-
