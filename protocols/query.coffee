@@ -83,10 +83,7 @@ server = exports.server = core.protocol.extend4000
     
     functions: ->
         onQuery: _.bind @subscribe, @
-
-    coreFunctions: ->
-        onQuery: _.bind @subscribe, @
-        
+                
     initialize: ->
         @when 'parent', (parent) =>
             parent.subscribe { type: 'query', payload: true }, (msg, realm) =>

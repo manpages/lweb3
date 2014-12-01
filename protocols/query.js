@@ -147,11 +147,6 @@
         onQuery: _.bind(this.subscribe, this)
       };
     },
-    coreFunctions: function() {
-      return {
-        onQuery: _.bind(this.subscribe, this)
-      };
-    },
     initialize: function() {
       return this.when('parent', (function(_this) {
         return function(parent) {
