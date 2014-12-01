@@ -85,7 +85,7 @@ server = exports.server = core.protocol.extend4000
         
     initialize: ->
         @when 'parent', (parent) =>
-            parent.subscribe { type: 'query', payload: true }, (msg) =>
+            parent.subscribe { type: 'query', payload: true }, (msg, realm) =>
                 @log 'got query',msg.id,msg.payload
                 @event msg.payload, msg.id
             parent.on 'end', => @end()
@@ -99,3 +99,32 @@ server = exports.server = core.protocol.extend4000
     subscribe: (pattern=true ,callback) ->
         subscriptionMan.fancy::subscribe.call @, pattern, (payload, id) =>
             callback payload, new reply(id: id, parent: @), @parent
+
+
+coreServer = exports.coreServer = core.protocol.extend4000
+    defaults:
+        name: 'queryServer'
+    
+    functions: ->
+        onQuery: _.bind @subscribe, @
+
+    coreFunctions: ->
+        onQuery: _.bind @subscribe, @
+        
+    initialize: ->
+        @when 'parent', (parent) =>
+            parent.subscribe { type: 'query', payload: true }, (msg, realm) =>
+                @log 'got query',msg.id,msg.payload
+                @event msg.payload, msg.id, realm
+            parent.on 'end', => @end()
+
+    send: (payload,id,end=false) ->
+        msg = { type: 'reply', payload: payload, id: id }
+        if end then msg.end = true; @log 'ending query',id,payload
+        else @log 'replying to query',id,payload
+        @parent.send msg
+
+    subscribe: (pattern=true ,callback) ->
+        subscriptionMan.fancy::subscribe.call @, pattern, (payload, id, realm) =>
+            callback payload, new reply(id: id, parent: @), realm
+

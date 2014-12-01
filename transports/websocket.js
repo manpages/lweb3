@@ -21,6 +21,10 @@
       name: 'webSocket'
     },
     initialize: function() {
+      var realm;
+      realm = {
+        client: this
+      };
       this.when('socketIo', (function(_this) {
         return function(socketIo) {
           var id;
@@ -32,7 +36,7 @@
           }
           _this.socketIo.on('msg', function(msg) {
             _this.log("<", msg);
-            return _this.event(msg);
+            return _this.event(msg, realm);
           });
           return _this.socketIo.on('disconnect', function() {
             _this.log("Lost Connection");

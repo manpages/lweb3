@@ -12,11 +12,13 @@ webSocketChannel = exports.webSocketChannel = core.channel.extend4000
         name: 'webSocket'
         
     initialize: ->
+        realm = { client: @ }
+        
         @when 'socketIo', (@socketIo) =>
             if id = @socketIo.id then @set name: @socketIo.id
             @socketIo.on 'msg', (msg) =>
                 @log "<", msg
-                @event msg
+                @event msg, realm
             @socketIo.on 'disconnect', =>
                 @log "Lost Connection"
                 @end()
