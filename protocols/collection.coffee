@@ -21,7 +21,6 @@ queryToCallback = (callback) ->
         if not end then throw "this query is supposed to be translated to callback but I got multiple responses"
         callback msg.err, msg.data
         
-
 clientCollection = exports.clientCollection = collectionInterface.extend4000
 
     query: (msg,callback) ->
@@ -32,7 +31,7 @@ clientCollection = exports.clientCollection = collectionInterface.extend4000
         @log 'create',data
         @query { create: data }, queryToCallback callback
 
-    remote: (pattern,callback) -> 
+    remove: (pattern,callback) -> 
         @query { remove: pattern }, queryToCallback callback
 
     findOne: (pattern,callback) ->
@@ -49,7 +48,7 @@ clientCollection = exports.clientCollection = collectionInterface.extend4000
         if limits then query.limits = limits
             
         @query query, (msg,end) ->
-            if end then return callbackDone null, end
+            if end then return helpers.cbc callbackDone, null, end
             callback null, msg
 
 client = exports.client = collectionProtocol.extend4000
@@ -72,7 +71,7 @@ serverCollection = exports.serverCollection = collectionInterface.extend4000
         callbackToRes = (res) -> (err,data) ->
             if err?.name then err = err.name
             res.end err: err, data: data
-            
+
         @subscribe { create: Object }, (msg, res, realm) ->
             c.createModel msg.create, realm, callbackToRes(res)
             
@@ -83,7 +82,9 @@ serverCollection = exports.serverCollection = collectionInterface.extend4000
             c.updateModel msg.update, msg.data, realm, callbackToRes(res)
             
         @subscribe { findOne: Object }, (msg, res, realm) ->
-            c.findModel msg.findOne, realm, callbackToRes(res)
+            c.findModel msg.findOne, (err,model) ->
+                if err then return callbackToRes(res)(err)
+                model.render realm, callbackToRes(res)
             
         @subscribe { call: String, pattern: Object, args: v().default([]).Array() }, (msg, res, realm) ->
             c.fcall msg.call, msg.args, msg.pattern, realm, callbackToRes(res)

@@ -51,7 +51,7 @@
         create: data
       }, queryToCallback(callback));
     },
-    remote: function(pattern, callback) {
+    remove: function(pattern, callback) {
       return this.query({
         remove: pattern
       }, queryToCallback(callback));
@@ -83,7 +83,7 @@
       }
       return this.query(query, function(msg, end) {
         if (end) {
-          return callbackDone(null, end);
+          return helpers.cbc(callbackDone, null, end);
         }
         return callback(null, msg);
       });
@@ -149,7 +149,12 @@
       this.subscribe({
         findOne: Object
       }, function(msg, res, realm) {
-        return c.findModel(msg.findOne, realm, callbackToRes(res));
+        return c.findModel(msg.findOne, function(err, model) {
+          if (err) {
+            return callbackToRes(res)(err);
+          }
+          return model.render(realm, callbackToRes(res));
+        });
       });
       this.subscribe({
         call: String,
