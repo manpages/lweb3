@@ -85,18 +85,15 @@ serverServer = exports.serverServer = core.protocol.extend4000
         onQuery: _.bind @subscribe, @
 
     subscribe: (pattern,callback) ->
-        console.log 'serverserver subscribe', pattern
         subscriptionMan.fancy::subscribe.call @, pattern, (payload, id, realm) =>
             callback payload, new reply(id: id, parent: realm.client.queryServer), realm
 
     initialize: ->
         @when 'parent', (parent) =>
             parent.on 'connect', (client) =>
-                console.log client.id
                 client.addProtocol new server verbose: @verbose, core: @
                 
             _.map parent.clients, (client,id) =>
-                console.log id
                 client.addProtocol new server verbose: @verbose, core: @
                                                            
     channel: (channel) ->

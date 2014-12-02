@@ -148,7 +148,6 @@
       };
     },
     subscribe: function(pattern, callback) {
-      console.log('serverserver subscribe', pattern);
       return subscriptionMan.fancy.prototype.subscribe.call(this, pattern, (function(_this) {
         return function(payload, id, realm) {
           return callback(payload, new reply({
@@ -162,14 +161,12 @@
       return this.when('parent', (function(_this) {
         return function(parent) {
           parent.on('connect', function(client) {
-            console.log(client.id);
             return client.addProtocol(new server({
               verbose: _this.verbose,
               core: _this
             }));
           });
           return _.map(parent.clients, function(client, id) {
-            console.log(id);
             return client.addProtocol(new server({
               verbose: _this.verbose,
               core: _this
