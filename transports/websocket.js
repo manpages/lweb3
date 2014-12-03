@@ -31,7 +31,7 @@
           _this.socketIo = socketIo;
           if (id = _this.socketIo.id) {
             _this.set({
-              name: _this.socketIo.id
+              name: id
             });
           }
           _this.socketIo.on('msg', function(msg) {

@@ -15,7 +15,7 @@ webSocketChannel = exports.webSocketChannel = core.channel.extend4000
         realm = { client: @ }
         
         @when 'socketIo', (@socketIo) =>
-            if id = @socketIo.id then @set name: @socketIo.id
+            if id = @socketIo.id then @set name: id
             @socketIo.on 'msg', (msg) =>
                 @log "<", msg
                 @event msg, realm
