@@ -20,19 +20,23 @@ webSocketServer = exports.webSocketServer = core.server.extend4000 validator.Val
                                 
     initialize: ->
         @http = @get 'http'
-        @clients = {}
         
-        channelClass = exports.webSocketChannel.extend4000 (@get('channelClass') or {})
+        channelClass = exports.webSocketChannel.extend4000 (@get('channelClass') or @channelClass or {})
         @socketIo = io.listen @http, log: false
 
         @socketIo.on 'connection', (socketIoClient) =>
-            @log 'connection received', socketIoClient.id
-            channel = new channelClass parent: @, socketIo: socketIoClient, id: id = socketIoClient.id
-            @clients[id] = channel
+            @log 'connection received', name = socketIoClient.id
+            channel = new channelClass parent: @, socketIo: socketIoClient, name: name
+            
+            channel.on 'change:name', (model,newname) =>
+                delete @clients[name]
+                @clients[newname] = model                
+            @clients[name] = channel
+            
             @trigger 'connect', channel
 
         @socketIo.on 'disconnect', (socketIoClient) =>
-            delete @clients[socketioClient.id]
+            delete @clients[channel.get('name')]
             @trigger 'disconnect', channel
             
     end: ->

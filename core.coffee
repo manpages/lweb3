@@ -56,7 +56,9 @@ protocol = exports.protocol = core.extend4000
 
 # has events like 'connect' and 'disconnect', provides channel objects
 # has clients dictionary mapping ids to clients
-server = exports.server = protocolHost.extend4000 {}
+server = exports.server = protocolHost.extend4000
+    initialize: -> 
+        @clients = @children = {}
 
 # Just a common pattern,
 # this is for model that hosts bunch of models of a same type with names and references to parent

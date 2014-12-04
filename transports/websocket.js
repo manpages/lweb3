@@ -58,9 +58,6 @@
     send: function(msg) {
       this.log(">", msg);
       return this.socketIo.emit('msg', msg);
-    },
-    receive: function(pattern, callback) {
-      return this.socketIo.on('msg', callback);
     }
   });
 

@@ -7,28 +7,28 @@ validator = require('validator2-extras'); v = validator.v
 
 core = require '../core'
 
-webSocketChannel = exports.webSocketChannel = core.channel.extend4000
+nssocketChannel = exports.nssocketChannel = core.channel.extend4000
     defaults:
-        name: 'webSocket'
+        name: 'nsSocket'
         
     initialize: ->
         realm = { client: @ }
         
-        @when 'socketIo', (@socketIo) =>
-            if id = @socketIo.id then @set name: id
-            @socketIo.on 'msg', (msg) =>
+        @when 'nssocket', (@nssocket) =>
+            @nssocket.data 'msg', (msg) =>
                 @log "<", msg
                 @event msg, realm
-            @socketIo.on 'disconnect', =>
-                @log "Lost Connection"
-                @end()
+                
+#            @socketIo.on 'disconnect', =>
+#                @log "Lost Connection"
+#                @end()
             
         @when 'parent', (parent) =>
-            parent.on 'end', => @end()
-            @socketIo.on 'msg', (msg) =>
+            #parent.on 'end', => @end()
+            @nssocket.on 'msg', (msg) =>
                 parent.event msg, realm
 
     send: (msg) ->
         @log ">", msg
-        @socketIo.emit 'msg', msg
+        @nssocket.send 'msg', msg
         

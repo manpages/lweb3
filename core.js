@@ -101,7 +101,11 @@
     requires: []
   });
 
-  server = exports.server = protocolHost.extend4000({});
+  server = exports.server = protocolHost.extend4000({
+    initialize: function() {
+      return this.clients = this.children = {};
+    }
+  });
 
   motherShip = exports.motherShip = function(name) {
     var model;
