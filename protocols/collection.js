@@ -33,9 +33,6 @@
 
   queryToCallback = function(callback) {
     return function(msg, end) {
-      if (!end) {
-        throw "this query is supposed to be translated to callback but I got multiple responses";
-      }
       return callback(msg.err, msg.data);
     };
   };
@@ -161,7 +158,15 @@
         pattern: Object,
         args: v()["default"]([]).Array()
       }, function(msg, res, realm) {
-        return c.fcall(msg.call, msg.args, msg.pattern, realm, callbackToRes(res));
+        return c.fcall(msg.call, msg.args, msg.pattern, realm, callbackToRes(res), function(err, data) {
+          if (err != null ? err.name : void 0) {
+            err = err.name;
+          }
+          return res.write({
+            err: err,
+            data: data
+          });
+        });
       });
       return this.subscribe({
         find: Object

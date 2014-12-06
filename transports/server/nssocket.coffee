@@ -30,11 +30,12 @@ nssocketServer = exports.nssocketServer = core.server.extend4000 validator.Valid
 
             channel.on 'change:name', (model,newname) =>
                 delete @clients[name]
-                @clients[newname] = model                
+                @clients[newname] = model
+                @trigger 'connect:' + newname, model
             @clients[name] = channel
-
-            
+            @trigger 'connect:' + name, channel
             @trigger 'connect', channel
+            
         @nssocket.listen @get 'port'
         #@socketIo.on 'disconnect', (socketIoClient) =>
             #delete @clients[socketioClient.id]

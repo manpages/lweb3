@@ -45,9 +45,11 @@
           });
           channel.on('change:name', function(model, newname) {
             delete _this.clients[name];
-            return _this.clients[newname] = model;
+            _this.clients[newname] = model;
+            return _this.trigger('connect:' + newname, model);
           });
           _this.clients[name] = channel;
+          _this.trigger('connect:' + name, channel);
           return _this.trigger('connect', channel);
         };
       })(this));

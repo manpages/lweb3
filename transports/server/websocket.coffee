@@ -30,9 +30,11 @@ webSocketServer = exports.webSocketServer = core.server.extend4000 validator.Val
             
             channel.on 'change:name', (model,newname) =>
                 delete @clients[name]
-                @clients[newname] = model                
+                @clients[newname] = model
+                @trigger 'connect:' + newname, model
             @clients[name] = channel
             
+            @trigger 'connect:' + name, channel
             @trigger 'connect', channel
 
         @socketIo.on 'disconnect', (socketIoClient) =>

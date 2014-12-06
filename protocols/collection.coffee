@@ -18,7 +18,7 @@ collectionProtocol = core.protocol.extend4000 core.motherShip('collection'),
         
 queryToCallback = (callback) ->
     (msg,end) ->
-        if not end then throw "this query is supposed to be translated to callback but I got multiple responses"
+        #if not end then throw "this query is supposed to be translated to callback but I got multiple responses"
         callback msg.err, msg.data
         
 clientCollection = exports.clientCollection = collectionInterface.extend4000
@@ -87,8 +87,10 @@ serverCollection = exports.serverCollection = collectionInterface.extend4000
                 model.render realm, callbackToRes(res)
             
         @subscribe { call: String, pattern: Object, args: v().default([]).Array() }, (msg, res, realm) ->
-            c.fcall msg.call, msg.args, msg.pattern, realm, callbackToRes(res)
-            
+            c.fcall msg.call, msg.args, msg.pattern, realm, callbackToRes(res), (err,data) ->
+                if err?.name then err = err.name
+                res.write err: err, data: data
+                            
         @subscribe { find: Object }, (msg, res, realm) =>
             bucket = new helpers.parallelBucket()
             endCb = bucket.cb()
