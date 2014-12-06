@@ -25,6 +25,7 @@
   collectionProtocol = core.protocol.extend4000(core.motherShip('collection'), {
     functions: function() {
       return {
+        collection: _.bind(this.collection, this),
         collections: this.collections
       };
     }

@@ -13,7 +13,7 @@ collectionInterface = core.core.extend4000 {}
 
 collectionProtocol = core.protocol.extend4000 core.motherShip('collection'),
     functions: ->
-        #collection: _.bind @collection, @
+        collection: _.bind @collection, @
         collections: @collections
         
 queryToCallback = (callback) ->
