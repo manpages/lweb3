@@ -38,6 +38,11 @@
   };
 
   clientCollection = exports.clientCollection = collectionInterface.extend4000({
+    subscribeModel: function(id, callback) {
+      return this.parent.parent.channel(this.get('name') + ":" + id).join(function(msg) {
+        return callback(msg);
+      });
+    },
     query: function(msg, callback) {
       msg.collection = this.get('name');
       return this.parent.parent.query(msg, callback);
@@ -98,7 +103,36 @@
   serverCollection = exports.serverCollection = collectionInterface.extend4000({
     initialize: function() {
       var c, callbackToRes, name;
-      c = this.get('collection');
+      c = this.c = this.get('collection');
+      this.c.on('update', (function(_this) {
+        return function(data) {
+          var id;
+          if (id = data.pattern.id) {
+            return _this.parent.parent.channel(_this.get('name') + ":" + id).broadcast({
+              action: 'update',
+              update: data.update
+            });
+          }
+        };
+      })(this));
+      this.c.on('remove', (function(_this) {
+        return function(data) {
+          var id;
+          if (id = data.pattern.id) {
+            return _this.parent.parent.channel(id).broadcast({
+              action: 'remove'
+            });
+          }
+        };
+      })(this));
+      this.c.on('create', (function(_this) {
+        return function(data) {
+          return _this.parent.parent.channel(name).broadcast({
+            action: 'create',
+            create: data.create
+          });
+        };
+      })(this));
       this.set({
         name: name = c.get('name')
       });

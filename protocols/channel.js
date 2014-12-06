@@ -34,11 +34,10 @@
   });
 
   clientChannel = core.core.extend4000({
-    initialize: function() {
-      return this.name = this.get('name');
-    },
     join: function(pattern, callback) {
-      var msg;
+      var msg, name;
+      name = this.get('name');
+      this.log('join');
       if (!callback) {
         callback = pattern;
         pattern = void 0;
@@ -49,18 +48,16 @@
         this.joined = true;
       }
       msg = {
-        joinChannel: this.name
+        joinChannel: name
       };
       if (pattern) {
         msg.pattern = pattern;
       }
       return this.query = this.parent.parent.query(msg, (function(_this) {
         return function(msg) {
-          if (msg.joined) {
-            return callback(void 0, _this);
-          } else {
-            return _this.event(msg);
-          }
+          _this.log('#', msg);
+          callback(msg);
+          return _this.event(msg);
         };
       })(this));
     },
@@ -85,24 +82,30 @@
     },
     channelClass: clientChannel,
     join: function(name, pattern, callback) {
+      if (!callback) {
+        callback = pattern;
+        pattern = true;
+      }
       return this.channel(name).join(pattern, callback);
     }
   });
 
   serverChannel = core.core.extend4000({
     initialize: function() {
-      this.name = this.get('name');
-      return this.clients = [];
+      var name;
+      name = this.get('name');
+      this.clients = [];
+      return this.log('initialized', name);
     },
     join: function(reply, pattern) {
-      reply.write({
-        joined: true
-      });
-      return this.subscribe(pattern || true, function(msg) {
-        return reply.write(msg);
+      this.log('client joined');
+      return this.subscribe(pattern || true, function(msg, next) {
+        reply.write(msg);
+        return next();
       });
     },
     broadcast: function(msg) {
+      this.log('broadcast', msg);
       return this.event(msg);
     },
     end: function(msg) {

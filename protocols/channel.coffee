@@ -15,21 +15,20 @@ channelInterface = core.protocol.extend4000 core.motherShip('channel'),
         channel.subscribe pattern, callback
     broadcast: (name,message) -> @channel(name).broadcast message
 
-
 clientChannel = core.core.extend4000
-    initialize: ->
-        @name = @get 'name'
-
     join: (pattern, callback) ->
+        name = @get 'name'
+        @log 'join'
         if not callback then callback = pattern; pattern = undefined
         if @joined then return else @joined = true
             
-        msg = joinChannel: @name
+        msg = joinChannel: name
         if pattern then msg.pattern = pattern
             
         @query = @parent.parent.query msg, (msg) =>
-            if msg.joined then callback undefined, @
-            else @event msg
+            @log '#',msg
+            callback msg
+            @event msg
             
     part: ->
         @joined = false
@@ -49,20 +48,27 @@ client = exports.client = channelInterface.extend4000
         join: _.bind @join, @
 
     channelClass: clientChannel
-    join: (name,pattern,callback) -> @channel(name).join pattern, callback
+    join: (name,pattern,callback) ->
+        if not callback then callback = pattern; pattern = true
+        @channel(name).join pattern, callback
     
 serverChannel = core.core.extend4000
     initialize: ->
-        @name = @get 'name'
+        name = @get 'name'
         @clients = []
+        @log 'initialized',name
         
     join: (reply,pattern) ->
-        reply.write { joined: true }
+        @log 'client joined'
+        #reply.write { joined: true }
         
-        @subscribe pattern or true, (msg) -> 
+        @subscribe pattern or true, (msg,next) -> 
             reply.write msg
+            next()
 
-    broadcast: (msg) -> @event msg
+    broadcast: (msg) ->
+        @log 'broadcast', msg
+        @event msg
 
     end: (msg) ->
         _.map @clients, (client) -> client.end msg

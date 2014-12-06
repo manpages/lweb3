@@ -22,6 +22,8 @@ queryToCallback = (callback) ->
         callback msg.err, msg.data
         
 clientCollection = exports.clientCollection = collectionInterface.extend4000
+    subscribeModel: (id,callback) ->
+        @parent.parent.channel(@get('name') + ":" + id).join (msg) -> callback msg
 
     query: (msg,callback) ->
         msg.collection = @get 'name'
@@ -50,7 +52,7 @@ clientCollection = exports.clientCollection = collectionInterface.extend4000
         @query query, (msg,end) ->
             if end then return helpers.cbc callbackDone, null, end
             callback null, msg
-
+            
 client = exports.client = collectionProtocol.extend4000
     defaults:
         name: 'collectionClient'
@@ -59,8 +61,15 @@ client = exports.client = collectionProtocol.extend4000
     
 serverCollection = exports.serverCollection = collectionInterface.extend4000
     initialize: ->
-        c = @get 'collection'
-        
+        c = @c = @get 'collection'
+        @c.on 'update', (data) =>
+            if id = data.pattern.id then @parent.parent.channel(@get('name') + ":" + id).broadcast action: 'update', update: data.update
+        @c.on 'remove', (data) =>
+            if id = data.pattern.id then @parent.parent.channel(id).broadcast action: 'remove'
+        @c.on 'create', (data) =>
+             @parent.parent.channel(name).broadcast action: 'create', create: data.create
+
+                
         @set name: name =  c.get('name')
         
         @when 'parent', (parent) =>
