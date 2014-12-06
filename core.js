@@ -72,7 +72,7 @@
         throw "what is this?";
       }
       if (this.hasProtocol(protocol)) {
-        throw "this protocol (" + (protocol.name()) + ") is already active on channel";
+        return;
       }
       _.map(protocol.requires, (function(_this) {
         return function(dependancyProtocol) {

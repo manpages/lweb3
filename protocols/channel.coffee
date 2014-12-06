@@ -80,12 +80,32 @@ server = exports.server = channelInterface.extend4000
         channel: _.bind @channel, @
         channels: @channels
 
-
     initialize: ->
+        core = @get 'core'
         @when 'parent', (parent) =>
             parent.onQuery { joinChannel: String }, (msg,reply) =>
                 @log "join request received for #" + msg.joinChannel
-                @channel(msg.joinChannel).join reply, msg.pattern
+                if core then core.channel(msg.joinChannel).join reply, msg.pattern
+                else @channel(msg.joinChannel).join reply, msg.pattern
 
             parent.on 'end', => @end()
 
+
+serverServer = exports.serverServer = channelInterface.extend4000
+    defaults:
+        name: 'channelServerServer'
+        channelClass: serverChannel
+        
+    requires: [ query.serverServer ]
+
+    functions: ->
+        channel: _.bind @channel, @
+        channels: @channels
+
+    initialize: ->
+        @when 'parent', (parent) =>
+            parent.on 'connect', (client) =>
+                client.addProtocol new server verbose: @verbose, core: @
+                
+            _.map parent.clients, (client,id) =>
+                client.addProtocol new server verbose: @verbose, core: @

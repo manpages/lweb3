@@ -38,7 +38,8 @@ protocolHost = exports.protocolHost = core.extend4000
         
     addProtocol: (protocol) ->
         if not name = protocol.name() then throw "what is this?"
-        if @hasProtocol protocol then throw "this protocol (#{protocol.name()}) is already active on channel"        
+        if @hasProtocol protocol then return
+            #throw "this protocol (#{protocol.name()}) is already active on channel"        
         _.map protocol.requires, (dependancyProtocol) =>
             if not @hasProtocol dependancyProtocol then @addProtocol new dependancyProtocol()
           
