@@ -13,7 +13,9 @@ webSocketClient = exports.webSocketClient = exports.webSocketChannel.extend4000
     defaults:
         name: 'webSocketClient'
         
-    initialize: -> @set socketIo: @socketIo = io.connect @get('host') or "http://" + window?location?host
+    initialize: ->
+        @set socketIo: @socketIo = io.connect @get('host') or "http://" + window?location?host
+        @socketIo.on 'connect', => @trigger 'connect'
     end: ->
         @socketIo.disconnect()
     

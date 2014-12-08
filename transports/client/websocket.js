@@ -23,9 +23,14 @@
       name: 'webSocketClient'
     },
     initialize: function() {
-      return this.set({
+      this.set({
         socketIo: this.socketIo = io.connect(this.get('host') || "http://" + (typeof window === "function" ? window(typeof location === "function" ? location(host) : void 0) : void 0))
       });
+      return this.socketIo.on('connect', (function(_this) {
+        return function() {
+          return _this.trigger('connect');
+        };
+      })(this));
     },
     end: function() {
       return this.socketIo.disconnect();
