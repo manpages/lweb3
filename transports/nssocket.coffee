@@ -12,6 +12,7 @@ nssocketChannel = exports.nssocketChannel = core.channel.extend4000
         name: 'nsSocket'
         
     initialize: ->
+        console.log 'init nssocket'
         realm = { client: @ }
         
         @when 'nssocket', (@nssocket) =>
@@ -28,6 +29,7 @@ nssocketChannel = exports.nssocketChannel = core.channel.extend4000
                 parent.event msg, realm
 
     send: (msg) ->
+        console.log 'nssocket send',msg
         @log ">", msg
         @nssocket.send 'msg', msg
         

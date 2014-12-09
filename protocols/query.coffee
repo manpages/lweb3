@@ -36,6 +36,7 @@ client = exports.client = core.protocol.extend4000 validator.ValidatedModel,
         @parent.send { type: 'queryCancel', id: id }
     
     send: (msg, timeout, callback) ->
+        console.log 'query',msg
         if timeout.constructor is Function
             callback = timeout
             timeout = @get('timeout')
