@@ -14,6 +14,7 @@ nssocketClient = exports.nssocketClient = exports.nssocketChannel.extend4000
         name: 'nssocketClient'
     initialize: ->
         @set nssocket: @nssocket = nssocket.NsSocket reconnect: true, type: 'tcp4'
+        console.log 'calling connect',@get('host'), @get('port')
         @nssocket.connect @get('host'), @get('port')
     end: ->
         @nssocket.disconnect()
