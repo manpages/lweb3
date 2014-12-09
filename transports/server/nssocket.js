@@ -49,7 +49,11 @@
           });
           _this.clients[name] = channel;
           _this.trigger('connect:' + name, channel);
-          return _this.trigger('connect', channel);
+          _this.trigger('connect', channel);
+          return channel.on('disconnect', function() {
+            delete _this.clients[channel.get('name')];
+            return _this.trigger('disconnect', channel);
+          });
         };
       })(this));
       return this.nssocket.listen(this.get('port'));

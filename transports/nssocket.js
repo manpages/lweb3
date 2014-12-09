@@ -28,9 +28,15 @@
       this.when('nssocket', (function(_this) {
         return function(nssocket) {
           _this.nssocket = nssocket;
-          return _this.nssocket.data('msg', function(msg) {
+          _this.nssocket.data('msg', function(msg) {
             _this.log("<", msg);
             return _this.event(msg, realm);
+          });
+          _this.nssocket.on('start', function() {
+            return _this.trigger('connect');
+          });
+          return _this.nssocket.on('close', function() {
+            return _this.trigger('disconnect');
           });
         };
       })(this));

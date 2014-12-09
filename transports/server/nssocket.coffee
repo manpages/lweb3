@@ -35,11 +35,12 @@ nssocketServer = exports.nssocketServer = core.server.extend4000 validator.Valid
             @clients[name] = channel
             @trigger 'connect:' + name, channel
             @trigger 'connect', channel
-            
+
+            channel.on 'disconnect', =>
+                delete @clients[channel.get('name')]
+                @trigger 'disconnect', channel
+
         @nssocket.listen @get 'port'
-        #@socketIo.on 'disconnect', (socketIoClient) =>
-            #delete @clients[socketioClient.id]
-            #@trigger 'disconnect', channel
             
     end: ->
         @nssocket.disconnect()
