@@ -29,7 +29,9 @@ clientChannel = core.core.extend4000
             @log '#',msg
             callback msg
             @event msg
-            
+
+        @
+                        
     part: ->
         @joined = false
         @query.end()

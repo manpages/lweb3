@@ -29,7 +29,17 @@
           type: 'tcp4'
         })
       });
-      return this.nssocket.connect(this.get('host'), this.get('port'));
+      this.nssocket.connect(this.get('host'), this.get('port'));
+      this.nssocket.on('start', (function(_this) {
+        return function() {
+          return _this.trigger('connect');
+        };
+      })(this));
+      return this.nssocket.on('close', (function(_this) {
+        return function() {
+          return _this.trigger('disconnect');
+        };
+      })(this));
     },
     end: function() {
       return this.nssocket.disconnect();

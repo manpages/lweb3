@@ -53,13 +53,14 @@
       if (pattern) {
         msg.pattern = pattern;
       }
-      return this.query = this.parent.parent.query(msg, (function(_this) {
+      this.query = this.parent.parent.query(msg, (function(_this) {
         return function(msg) {
           _this.log('#', msg);
           callback(msg);
           return _this.event(msg);
         };
       })(this));
+      return this;
     },
     part: function() {
       this.joined = false;
