@@ -29,7 +29,6 @@
           type: 'tcp4'
         })
       });
-      console.log('calling connect', this.get('host'), this.get('port'));
       return this.nssocket.connect(this.get('host'), this.get('port'));
     },
     end: function() {

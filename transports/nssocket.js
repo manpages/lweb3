@@ -22,7 +22,6 @@
     },
     initialize: function() {
       var realm;
-      console.log('init nssocket');
       realm = {
         client: this
       };
@@ -50,7 +49,6 @@
       })(this));
     },
     send: function(msg) {
-      console.log('nssocket send', msg);
       this.log(">", msg);
       return this.nssocket.send('msg', msg);
     }
