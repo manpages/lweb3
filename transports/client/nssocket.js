@@ -32,7 +32,7 @@
       return this.nssocket.connect(this.get('host'), this.get('port'));
     },
     end: function() {
-      return this.nssocket.disconnect();
+      return this.nssocket.destroy();
     }
   });
 

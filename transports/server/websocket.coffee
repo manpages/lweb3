@@ -42,5 +42,7 @@ webSocketServer = exports.webSocketServer = core.server.extend4000 validator.Val
             @trigger 'disconnect', channel
             
     end: ->
+        if @ended then return
+        @ended = true
         @http.close()
         core.core::end.call @
