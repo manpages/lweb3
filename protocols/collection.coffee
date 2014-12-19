@@ -22,6 +22,9 @@ queryToCallback = (callback) ->
         callback msg.err, msg.data
         
 clientCollection = exports.clientCollection = collectionInterface.extend4000
+    initialize: ->
+        @parent.parent.channel(@get('name')).join (msg) => @event msg
+        
     subscribeModel: (id,callback) ->
         @parent.parent.channel(@get('name') + ":" + id).join (msg) -> callback msg
 
@@ -31,6 +34,7 @@ clientCollection = exports.clientCollection = collectionInterface.extend4000
 
     create: (data,callback) ->
         @log 'create',data
+        delete data._t
         @query { create: data }, queryToCallback callback
 
     remove: (pattern,callback) -> 
@@ -62,13 +66,19 @@ client = exports.client = collectionProtocol.extend4000
 serverCollection = exports.serverCollection = collectionInterface.extend4000
     initialize: ->
         c = @c = @get 'collection'
+        
         @c.on 'update', (data) =>
-            if id = data.pattern.id then @parent.parent.channel(@get('name') + ":" + id).broadcast action: 'update', update: data.update
+            console.log 'got update event',data
+            if id = data.id then @parent.parent.channel(@get('name') + ":" + id).broadcast action: 'update', update: data
+                
         @c.on 'remove', (data) =>
-            if id = data.pattern.id then @parent.parent.channel(id).broadcast action: 'remove'
-        @c.on 'create', (data) =>
-             @parent.parent.channel(name).broadcast action: 'create', create: data.create
+            console.log 'got remove event', data
+            if id = data.id then @parent.parent.channel(id).broadcast action: 'remove'
 
+        @c.on 'create', (data) =>
+            console.log 'got create event',data
+            
+            @parent.parent.channel(name).broadcast action: 'create', create: data
                 
         @set name: name =  c.get('name')
         
