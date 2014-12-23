@@ -68,16 +68,12 @@ serverCollection = exports.serverCollection = collectionInterface.extend4000
         c = @c = @get 'collection'
         
         @c.on 'update', (data) =>
-            console.log 'got update event',data
             if id = data.id then @parent.parent.channel(@get('name') + ":" + id).broadcast action: 'update', update: data
                 
         @c.on 'remove', (data) =>
-            console.log 'got remove event', data
             if id = data.id then @parent.parent.channel(id).broadcast action: 'remove'
 
         @c.on 'create', (data) =>
-            console.log 'got create event',data
-            
             @parent.parent.channel(name).broadcast action: 'create', create: data
                 
         @set name: name =  c.get('name')
@@ -104,6 +100,7 @@ serverCollection = exports.serverCollection = collectionInterface.extend4000
             c.findModel msg.findOne, (err,model) ->
                 if err then return callbackToRes(res)(err)
                 model.render realm, callbackToRes(res)
+                if model.gCollect then model.gCollect()
             
         @subscribe { call: String, pattern: Object, args: v().default([]).Array() }, (msg, res, realm) ->
             c.fcall msg.call, msg.args, msg.pattern, realm, callbackToRes(res), (err,data) ->
@@ -118,6 +115,7 @@ serverCollection = exports.serverCollection = collectionInterface.extend4000
                 bucketCallback = bucket.cb()
                 model.render realm, (err,data) ->
                     if not err then res.write data
+                    if model.gCollect then model.gCollect()
                     bucketCallback()), ((err,data) -> endCb())
                     
             bucket.done (err,data) -> res.end()    

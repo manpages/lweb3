@@ -115,7 +115,6 @@
       this.c.on('update', (function(_this) {
         return function(data) {
           var id;
-          console.log('got update event', data);
           if (id = data.id) {
             return _this.parent.parent.channel(_this.get('name') + ":" + id).broadcast({
               action: 'update',
@@ -127,7 +126,6 @@
       this.c.on('remove', (function(_this) {
         return function(data) {
           var id;
-          console.log('got remove event', data);
           if (id = data.id) {
             return _this.parent.parent.channel(id).broadcast({
               action: 'remove'
@@ -137,7 +135,6 @@
       })(this));
       this.c.on('create', (function(_this) {
         return function(data) {
-          console.log('got create event', data);
           return _this.parent.parent.channel(name).broadcast({
             action: 'create',
             create: data
@@ -195,7 +192,10 @@
           if (err) {
             return callbackToRes(res)(err);
           }
-          return model.render(realm, callbackToRes(res));
+          model.render(realm, callbackToRes(res));
+          if (model.gCollect) {
+            return model.gCollect();
+          }
         });
       });
       this.subscribe({
@@ -226,6 +226,9 @@
             return model.render(realm, function(err, data) {
               if (!err) {
                 res.write(data);
+              }
+              if (model.gCollect) {
+                model.gCollect();
               }
               return bucketCallback();
             });
