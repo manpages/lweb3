@@ -24,7 +24,9 @@
     },
     initialize: function() {
       this.set({
-        socketIo: this.socketIo = io.connect(this.get('host') || "http://" + (typeof window === "function" ? window(typeof location === "function" ? location(host) : void 0) : void 0))
+        socketIo: this.socketIo = io.connect(this.get('host') || "http://" + (typeof window === "function" ? window(typeof location === "function" ? location(host, {
+          log: false
+        }) : void 0) : void 0))
       });
       return this.socketIo.on('connect', (function(_this) {
         return function() {

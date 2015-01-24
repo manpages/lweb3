@@ -64,7 +64,6 @@
     },
     send: function(msg, timeout, callback) {
       var id, unsubscribe;
-      console.log('query', msg);
       if (timeout.constructor === Function) {
         callback = timeout;
         timeout = this.get('timeout');
