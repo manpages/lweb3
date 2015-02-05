@@ -127,7 +127,7 @@
         return function(data) {
           var id;
           if (id = data.id) {
-            return _this.parent.parent.channel(id).broadcast({
+            return _this.parent.parent.channel(_this.get('name') + ":" + id).broadcast({
               action: 'remove'
             });
           }

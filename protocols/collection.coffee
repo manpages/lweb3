@@ -70,8 +70,8 @@ serverCollection = exports.serverCollection = collectionInterface.extend4000
         @c.on 'update', (data) =>
             if id = data.id then @parent.parent.channel(@get('name') + ":" + id).broadcast action: 'update', update: data
                 
-        @c.on 'remove', (data) =>
-            if id = data.id then @parent.parent.channel(id).broadcast action: 'remove'
+        @c.on 'remove', (data) => # should get POST REMOVE data from event, so that it can transmit ids
+            if id = data.id then @parent.parent.channel(@get('name') + ":" + id).broadcast action: 'remove'
 
         @c.on 'create', (data) =>
             @parent.parent.channel(name).broadcast action: 'create', create: data
