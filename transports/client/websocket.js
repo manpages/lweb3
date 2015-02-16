@@ -28,9 +28,14 @@
           log: false
         }) : void 0) : void 0))
       });
-      return this.socketIo.on('connect', (function(_this) {
+      this.socketIo.on('connect', (function(_this) {
         return function() {
           return _this.trigger('connect');
+        };
+      })(this));
+      return this.socketIo.on('disconnect', (function(_this) {
+        return function() {
+          return _this.trigger('disconnect');
         };
       })(this));
     },

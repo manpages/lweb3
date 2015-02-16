@@ -21,9 +21,12 @@ webSocketChannel = exports.webSocketChannel = core.channel.extend4000
                 @event msg, realm
                 
             @socketIo.on 'disconnect', =>
+                @trigger 'disconnect'
                 @log "Lost Connection"
                 @end()
-            
+
+
+                                    
         @when 'parent', (parent) =>
             parent.on 'end', => @end()
             @socketIo.on 'msg', (msg) =>

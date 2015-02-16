@@ -36,7 +36,7 @@ client = exports.client = core.protocol.extend4000 validator.ValidatedModel,
         @parent.send { type: 'queryCancel', id: id }
     
     send: (msg, timeout, callback) ->
-        if timeout.constructor is Function
+        if timeout?.constructor is Function
             callback = timeout
             timeout = @get('timeout')
 
@@ -45,7 +45,7 @@ client = exports.client = core.protocol.extend4000 validator.ValidatedModel,
         
         unsubscribe = @subscribe { type: 'reply', id: id }, (msg) =>
             if msg.end then unsubscribe()
-            callback msg.payload, msg.end
+            helpers.cbc callback, msg.payload, msg.end
             
         #setTimeout unsubscribe, timeout
         return new query parent: @, id: id, unsubscribe: unsubscribe

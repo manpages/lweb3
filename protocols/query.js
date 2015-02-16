@@ -64,7 +64,7 @@
     },
     send: function(msg, timeout, callback) {
       var id, unsubscribe;
-      if (timeout.constructor === Function) {
+      if ((timeout != null ? timeout.constructor : void 0) === Function) {
         callback = timeout;
         timeout = this.get('timeout');
       }
@@ -82,7 +82,7 @@
           if (msg.end) {
             unsubscribe();
           }
-          return callback(msg.payload, msg.end);
+          return helpers.cbc(callback, msg.payload, msg.end);
         };
       })(this));
       return new query({

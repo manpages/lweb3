@@ -24,6 +24,7 @@ core = exports.core = subscriptionMan.fancy.extend4000
         @trigger 'end'
             
     log: (args...) ->
+        @trigger 'log', args
         if @verbose then console.log.apply console, [].concat( '::', new Date().getTime() - startTime, @name(), args)
 
 

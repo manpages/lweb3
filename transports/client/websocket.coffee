@@ -16,6 +16,7 @@ webSocketClient = exports.webSocketClient = exports.webSocketChannel.extend4000
     initialize: ->
         @set socketIo: @socketIo = io.connect @get('host') or "http://" + window?location?host, { log: false }
         @socketIo.on 'connect', => @trigger 'connect'
+        @socketIo.on 'disconnect', => @trigger 'disconnect'        
     end: ->
         if @ended then return
         @ended = true
