@@ -4,6 +4,7 @@ helpers = require 'helpers'
 
 subscriptionMan = require('subscriptionman2')
 validator = require('validator2-extras'); v = validator.v
+util = require 'util'
 
 core = require '../core'
 
@@ -24,15 +25,20 @@ webSocketChannel = exports.webSocketChannel = core.channel.extend4000
                 @trigger 'disconnect'
                 @log "Lost Connection"
                 @end()
-
-
                                     
         @when 'parent', (parent) =>
             parent.on 'end', => @end()
             @socketIo.on 'msg', (msg) =>
                 parent.event msg, realm
-
+        
     send: (msg) ->
         @log ">", msg
+        try
+            JSON.stringify(msg)
+        catch err
+            console.error "cannot stringify", util.inspect msg, depth: 4, colors: true
+            throw err
+            
         @socketIo.emit 'msg', msg
         
+

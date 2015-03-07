@@ -106,7 +106,7 @@ server = exports.server = core.protocol.extend4000
     
     functions: ->
         onQuery: _.bind @subscribe, @
-
+                
     initialize: ->
         @when 'core', (core) => @core = core
             

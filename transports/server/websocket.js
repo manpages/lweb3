@@ -65,6 +65,9 @@
         return;
       }
       this.ended = true;
+      _.map(this.socketIo.sockets.sockets, function(socket) {
+        return socket.disconnect();
+      });
       this.http.close();
       return core.core.prototype.end.call(this);
     }

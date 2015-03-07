@@ -44,5 +44,8 @@ webSocketServer = exports.webSocketServer = core.server.extend4000 validator.Val
     end: ->
         if @ended then return
         @ended = true
+        _.map @socketIo.sockets.sockets, (socket) ->
+            socket.disconnect()
+
         @http.close()
         core.core::end.call @
