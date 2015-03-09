@@ -26,7 +26,7 @@ webSocketServer = exports.webSocketServer = core.server.extend4000 validator.Val
 
         @socketIo.on 'connection', (socketIoClient) =>
             @log 'connection received', name = socketIoClient.id
-            @log socketIoClient.headers
+            console.log({hdrs: socketIoClient.headers})
             channel = new channelClass parent: @, socketIo: socketIoClient, name: name
             
             channel.on 'change:name', (model,newname) =>
