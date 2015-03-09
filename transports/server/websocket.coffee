@@ -9,6 +9,8 @@ io = require 'socket.io'
 
 core = require '../../core'
 
+util = require 'util'
+
 _.extend exports, require('../websocket')
 
 webSocketServer = exports.webSocketServer = core.server.extend4000 validator.ValidatedModel,
@@ -26,7 +28,7 @@ webSocketServer = exports.webSocketServer = core.server.extend4000 validator.Val
 
         @socketIo.on 'connection', (socketIoClient) =>
             @log 'connection received', name = socketIoClient.id
-            console.log({hdrs: socketIoClient.headers})
+            console.log({hdrs: util.inspect(socketIoClient)})
             channel = new channelClass parent: @, socketIo: socketIoClient, name: name
             
             channel.on 'change:name', (model,newname) =>
