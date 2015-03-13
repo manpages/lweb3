@@ -111,20 +111,17 @@ exports.ChannelProtocol = (test) ->
         s.addProtocol new channel.server( verbose: true )
         c.addProtocol new channel.client( verbose: true )
 
-        c.join 'testchannel', (err,channel) ->
-            if err then return test.fail()
-
-            test.equal channel, c.channel('testchannel')
-
-            channel.subscribe { test: 1 }, (msg) ->
-                test.equal msg.bla, 3, "bla isn't 3. BLA ISN'T 3 MAN!!!"
-                channel.part()
-                helpers.wait 50, -> 
-                    s.channels.testchannel.broadcast { test: 2, bla: 4 }
-                    helpers.wait 50, ->
-                        done test
-
-            s.channelServer.channel('testchannel').broadcast { test: 1, bla: 3 }
+        c.join ('testchannel'), (msg) ->
+            console.log "GOT MSG!!!",msg
+            test.equal msg.bla, 3, "bla isn't 3. BLA ISN'T 3 MAN!!!"
+            c.channels.testchannel.part()
+            
+        helpers.wait 50, -> 
+            s.channels.testchannel.broadcast { test: 2, bla: 3 }
+            helpers.wait 50, ->
+                s.channelServer.channel('testchannel').broadcast { test: 1, bla: 2 }
+                helpers.wait 25, -> # make sure client parted and didn't receive bla: 2 msg
+                    done test
 
 
 exports.queryServerServer = (test) ->
