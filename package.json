@@ -14,7 +14,12 @@
     "backbone4000": "git://github.com/leshy/backbone4000.git",
     "helpers": "git://github.com/leshy/nodejs-helpers.git",
     "decorators": "git://github.com/leshy/nodejs-decorators.git",
+    "subscriptionman2": "git://github.com/leshy/nodejs-subscriptionman2.git",
+    "validator2-extras": "git://github.com/leshy/nodejs-validator2-extras",
     "underscore": "underscore >= 1.4.x",
+    "async": "^0.9",
+    "socket.io": "^0.9",
+    "express": "^3",
     "socket.io-browserify": "~0.9.6"
   },
   "author": "lesh",
