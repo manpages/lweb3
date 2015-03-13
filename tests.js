@@ -187,7 +187,6 @@
         verbose: true
       }));
       c.join('testchannel', function(msg) {
-        console.log("GOT MSG!!!", msg);
         test.equal(msg.bla, 3, "bla isn't 3. BLA ISN'T 3 MAN!!!");
         return c.channels.testchannel.part();
       });

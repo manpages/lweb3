@@ -112,7 +112,6 @@ exports.ChannelProtocol = (test) ->
         c.addProtocol new channel.client( verbose: true )
 
         c.join ('testchannel'), (msg) ->
-            console.log "GOT MSG!!!",msg
             test.equal msg.bla, 3, "bla isn't 3. BLA ISN'T 3 MAN!!!"
             c.channels.testchannel.part()
             
