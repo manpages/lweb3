@@ -10,8 +10,8 @@ Http = require 'http'
 port = 8192
 
 gimmeEnv = (callback) -> 
-    app = express()
-    app.configure ->
+app = express()
+app.configure ->
         app.set 'view engine', 'ejs'
         app.use express.favicon()
         app.use express.bodyParser()
@@ -19,7 +19,7 @@ gimmeEnv = (callback) ->
         app.use express.cookieParser()
         app.use app.router
         app.use (err, req, res, next) ->
-            res.send 500, 'BOOOM!'
+                res.send 500, 'BOOOM!'
 
     http = Http.createServer app
     
@@ -30,122 +30,122 @@ gimmeEnv = (callback) ->
     lwebc = new Client.webSocketClient host: 'http://localhost:' + port, verbose: false
     
     lwebs.on 'connect', (s) -> callback lwebs, s, lwebc, (test) ->
-        lwebc.end()
+            lwebc.end()
         helpers.wait 30, -> 
-            lwebs.end()
-            helpers.wait 10, -> test.done()
+        lwebs.end()
+        helpers.wait 10, -> test.done()
 
 
 
 exports.init = (test) ->
-    gimmeEnv (lwebs, s, c, done) ->
-        done test
+        gimmeEnv (lwebs, s, c, done) ->
+                done test
         
 exports.ClientSend = (test) ->
-    gimmeEnv (lwebs, s, c, done) ->
-        s.verbose = true
+        gimmeEnv (lwebs, s, c, done) ->
+                s.verbose = true
         c.verbose = true
         cnt = 0
         s.subscribe { test: true}, (msg) ->
-            done test                
+                done test                
         c.send { test: 1 }
 
 exports.ServerSend = (test) ->
-    gimmeEnv (lwebs, s, c, done) ->
-        s.verbose = true
+        gimmeEnv (lwebs, s, c, done) ->
+                s.verbose = true
         c.verbose = true
         c.subscribe { test: true}, (msg) ->
-            done test
+                done test
         s.send { test: 1 }
 
 exports.QueryProtocol = (test) ->
-    query = require('./protocols/query')
+        query = require('./protocols/query')
     
     gimmeEnv (lwebs, s, c,done) ->
-        s.addProtocol new query.server( verbose: true )
+            s.addProtocol new query.server( verbose: true )
         c.addProtocol new query.client( verbose: true )
 
         s.queryServer.subscribe { test: Number }, (msg, reply) ->
-            reply.write reply: msg.test + 3
+                reply.write reply: msg.test + 3
             helpers.wait 100, -> reply.end reply: msg.test + 2
 
         total = 0
 
         c.queryClient.send { test: 7 }, (msg, end) ->
-            total += msg.reply
+                total += msg.reply
             if end
-                test.equal total, 19
+                    test.equal total, 19
                 test.done()
 
 
 exports.QueryProtocolCancel = (test) ->
-    query = require('./protocols/query')
+        query = require('./protocols/query')
     
     gimmeEnv (lwebs, s, c,done) ->
-        s.addProtocol new query.server( verbose: true )
+            s.addProtocol new query.server( verbose: true )
         c.addProtocol new query.client( verbose: true )
 
         s.queryServer.subscribe { test: Number }, (msg, reply) ->
-            reply.write reply: msg.test + 3
+                reply.write reply: msg.test + 3
             helpers.wait 100, -> test.equal reply.ended, true
 
         total = 0
 
         query = c.queryClient.send { test: 7 }, (msg, end) ->
-            query.end()
+                query.end()
             total += msg.reply
             
             c.subscribe { type: 'reply', end: true }, (msg) ->
-                test.ok false, "didnt cancel"
+                    test.ok false, "didnt cancel"
                 
             helpers.wait 200, -> test.done()
-                        
+            
 
 exports.ChannelProtocol = (test) ->
-    channel = require('./protocols/channel')
+        channel = require('./protocols/channel')
     query = require('./protocols/query')
 
     gimmeEnv (lwebs, s, c, done) ->
-        s.addProtocol new query.server( verbose: true )
+            s.addProtocol new query.server( verbose: true )
         c.addProtocol new query.client( verbose: true )
         s.addProtocol new channel.server( verbose: true )
         c.addProtocol new channel.client( verbose: true )
 
         c.join ('testchannel'), (msg) ->
-            test.equal msg.bla, 3, "bla isn't 3. BLA ISN'T 3 MAN!!!"
+                test.equal msg.bla, 3, "bla isn't 3. BLA ISN'T 3 MAN!!!"
             c.channels.testchannel.part()
             
         helpers.wait 50, -> 
-            s.channels.testchannel.broadcast { test: 2, bla: 3 }
-            helpers.wait 50, ->
+        s.channels.testchannel.broadcast { test: 2, bla: 3 }
+        helpers.wait 50, ->
                 s.channelServer.channel('testchannel').broadcast { test: 1, bla: 2 }
                 helpers.wait 25, -> # make sure client parted and didn't receive bla: 2 msg
-                    done test
+                done test
 
 
 exports.queryServerServer = (test) ->
-    gimmeEnv (lwebs, s, c, done) ->
-        query = require('./protocols/query')
+        gimmeEnv (lwebs, s, c, done) ->
+                query = require('./protocols/query')
         s.verbose = true
         c.verbose = true
 
         lwebs.addProtocol new query.serverServer verbose: true
 
         lwebs.onQuery bla: Number, (msg,reply,realm) ->
-            console.log "SERVERQUERY", msg
+                console.log "SERVERQUERY", msg
             reply.end( bla: 666 )
             
         c.addProtocol new query.client verbose: true
         
         c.query bla: 3, (reply,end) ->
-            test.equal end, true
+                test.equal end, true
             test.deepEqual reply, { bla: 666 }
             done test
 
             
 
 exports.CollectionProtocol = (test) ->
-    return test.done()
+        return test.done()
     mongodb = require 'mongodb'
     channel = require('./protocols/channel')
     query = require('./protocols/query')
@@ -153,23 +153,23 @@ exports.CollectionProtocol = (test) ->
     collectionsS = require 'collections/serverside'
     collectionsC = require 'collections'
     gimmeEnv (lwebs,s,c,done) ->
-        helpers.wait 100, -> 
+            helpers.wait 100, -> 
             db = new mongodb.Db 'testdb', new mongodb.Server('localhost', 27017), safe: true
             db.open (err,data) ->
-                if err then test.fail err
-                s.addProtocol new query.server( verbose: true )
+                    if err then test.fail err
+                            s.addProtocol new query.server( verbose: true )
                 c.addProtocol new query.client( verbose: true )
                 s.addProtocol new channel.server( verbose: true )
                 c.addProtocol new channel.client( verbose: true )
 
                 s.addProtocol new collectionProtocol.server
-                    verbose: true,
-                    collectionClass: collectionProtocol.serverCollection.extend4000 collectionsS.MongoCollection, { defaults: { db: db } }
+                verbose: true,
+                collectionClass: collectionProtocol.serverCollection.extend4000 collectionsS.MongoCollection, { defaults: { db: db } }
 
 
                 c.addProtocol new collectionProtocol.client
-                    verbose: true,
-                    collectionClass: collectionProtocol.clientCollection.extend4000 collectionsC.ModelMixin, {}
+                verbose: true,
+                collectionClass: collectionProtocol.clientCollection.extend4000 collectionsC.ModelMixin, {}
 
                 
                 serverC = s.collection('bla')
@@ -184,15 +184,15 @@ exports.CollectionProtocol = (test) ->
                 
 
 class Test
-    done: ->
-        console.log 'test done'
+        done: ->
+                console.log 'test done'
 #        process.exit(0)
-    equal: (x,y) ->
+equal: (x,y) ->
         if x isnt y then throw "not equal"            
-    deepEqual: -> true
+                deepEqual: -> true
     ok: -> true
 
 
-#exports.QueryProtocol new Test()
-#exports.queryServerServer new Test()
-#exports.CollectionProtocol new Test()
+exports.QueryProtocol new Test()
+exports.queryServerServer new Test()
+exports.CollectionProtocol new Test()
